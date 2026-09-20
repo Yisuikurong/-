@@ -1,0 +1,1486 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能花卉养殖系统</title>
+    <style>
+        /* =====================================================
+           玻璃拟态主题系统（CSS 变量）
+           ===================================================== */
+        :root {
+            --primary: #4a7c59;
+            --primary-hover: #3c6648;
+            --primary-deep: #3a6b47;
+            --primary-light: #72b084;
+            --primary-dark: #2f5d3a;
+            --text-main: #333;
+            --text-sub: #4a5a4f;
+            --text-mute: #7a9480;
+            --on-accent: #fff;
+            --warn: #d48346;
+            --danger: #c95b5b;
+            --danger-hover: #a84747;
+            --info: #648ca6;
+            --glass: rgba(255,255,255,0.55);
+            --glass-strong: rgba(255,255,255,0.78);
+            --glass-weak: rgba(255,255,255,0.14);
+            --glass-hover: rgba(255,255,255,0.30);
+            --border-glass: rgba(255,255,255,0.5);
+            --border-soft: #e5f0e7;
+            --soft-bg: #f4f9f5;
+            --soft-bg-strong: #e8f1eb;
+            --input-bg: rgba(255,255,255,0.65);
+            --bg-from: #eef7f0;
+            --bg-mid: #f7fbf5;
+            --bg-to: #e2efe5;
+            --blob1: rgba(114,176,132,0.5);
+            --blob2: rgba(100,140,166,0.36);
+            --blob3: rgba(212,131,70,0.22);
+            --blob4: rgba(47,93,58,0.30);
+            --shadow-glass: 0 8px 32px rgba(31,60,40,0.12);
+            --shadow-glass-lg: 0 18px 50px rgba(31,60,40,0.18);
+            --grass-opacity: 0.45;
+        }
+                :root[data-theme="dark"] {
+            --primary: #7cc08e;
+            --primary-hover: #9bd4ab;
+            --primary-deep: #63b57c;
+            --primary-light: #8fd2a0;
+            --primary-dark: #d9f1e0;
+            --text-main: #edf5ef;
+            --text-sub: #b6cdbd;
+            --text-mute: #87a394;
+            --on-accent: #0e1a13;
+            --warn: #eda863;
+            --danger: #e68585;
+            --danger-hover: #cf6a6a;
+            --info: #8fbcd6;
+            --glass: rgba(24,39,31,0.55);
+            --glass-strong: rgba(28,46,37,0.80);
+            --glass-weak: rgba(255,255,255,0.09);
+            --glass-hover: rgba(255,255,255,0.18);
+            --border-glass: rgba(255,255,255,0.16);
+            --border-soft: rgba(255,255,255,0.14);
+            --soft-bg: rgba(52,78,64,0.55);
+            --soft-bg-strong: rgba(66,96,80,0.62);
+            --input-bg: rgba(255,255,255,0.08);
+            --bg-from: #0c1410;
+            --bg-mid: #14211a;
+            --bg-to: #0a1310;
+            --blob1: rgba(96,178,130,0.24);
+            --blob2: rgba(76,150,206,0.16);
+            --blob3: rgba(200,136,86,0.13);
+            --blob4: rgba(108,172,144,0.20);
+            --shadow-glass: 0 10px 34px rgba(0,0,0,0.45);
+            --shadow-glass-lg: 0 20px 60px rgba(0,0,0,0.55);
+            --grass-opacity: 0.12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: var(--soft-bg);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20,50 C30,30 40,70 50,50 C60,30 70,70 80,50' stroke='%23dcecd8' stroke-width='1.4' fill='none' opacity='0.45'/%3E%3Cpath d='M0,20 C10,10 20,30 30,20 C40,10 50,30 60,20' stroke='%23dcecd8' stroke-width='1.1' fill='none' opacity='0.35'/%3E%3Cpath d='M0,80 C10,70 20,90 30,80 C40,70 50,90 60,80' stroke='%23dcecd8' stroke-width='1.1' fill='none' opacity='0.35'/%3E%3C/svg%3E");
+            color: #333;
+            min-height: 100vh;
+        }
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 28px 18px 60px;
+        }
+        /* ===== 顶部标题 ===== */
+        .top-bar {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+        .top-bar h1 {
+            color: var(--primary-dark);
+            font-size: 30px;
+            letter-spacing: 2px;
+        }
+        .top-bar p {
+            color: var(--text-mute);
+            font-size: 14px;
+            margin-top: 6px;
+        }
+        /* ===== 每日一花 ===== */
+        .daily-flower {
+            background: var(--glass-strong);
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+            border-left: 6px solid var(--primary-light);
+            box-shadow: 0 3px 12px rgba(74,124,89,0.12);
+        }
+        .daily-flower h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 17px;
+        }
+        .knowledge-block {
+            background: var(--soft-bg);
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-sub);
+        }
+        /* ===== 搜索框 ===== */
+        .search-area {
+            margin-bottom: 20px;
+        }
+        .search-area input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border-soft);
+            border-radius: 14px;
+            font-size: 16px;
+            background: var(--glass-strong);
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-area input:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(114,176,132,0.18);
+        }
+        .search-tip {
+            font-size: 12px;
+            color: var(--text-mute);
+            margin-top: 6px;
+            text-align: center;
+        }
+        /* ===== 首页三大模块 ===== */
+        .home-module-wrap {
+            display: grid;
+            gap: 16px;
+        }
+        .home-card {
+            background: var(--glass-strong);
+            border-radius: 16px;
+            padding: 24px 22px;
+            cursor: pointer;
+            transition: 0.25s;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 2px 10px rgba(74,124,89,0.08);
+        }
+        .home-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(74,124,89,0.18);
+        }
+        .home-card h2 {
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+        .home-card p {
+            color: var(--text-mute);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        /* ===== 子页面 ===== */
+        .sub-page {
+            display: none;
+        }
+        .sub-page.active {
+            display: block;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            padding: 9px 16px;
+            border: none;
+            border-radius: 10px;
+            background: var(--soft-bg-strong);
+            color: var(--primary-deep);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            background: var(--soft-bg-strong);
+        }
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .filter-bar button {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            background: var(--glass-strong);
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .filter-bar button.active {
+            background: var(--primary);
+            color: var(--on-accent);
+        }
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: var(--glass-strong);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 1px 6px rgba(74,124,89,0.06);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 14px rgba(74,124,89,0.15);
+        }
+        .card h4 {
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+        .card p {
+            color: var(--text-sub);
+            line-height: 1.6;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-accent);
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: var(--on-accent);
+        }
+        .btn-link {
+            background: transparent;
+            color: var(--primary);
+            text-decoration: underline;
+            padding: 4px 0;
+        }
+        .input-item {
+            margin: 12px 0;
+        }
+        .input-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+        .input-item input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-soft);
+            border-radius: 9px;
+            font-size: 14px;
+            outline: none;
+        }
+        .plant-day-tag {
+            display: inline-block;
+            background: var(--primary-light);
+            color: var(--on-accent);
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 13px;
+        }
+        .sick-tag {
+            display: inline-block;
+            background: var(--warn);
+            color: var(--on-accent);
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .category-tag {
+            display: inline-block;
+            background: var(--info);
+            color: var(--on-accent);
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+        }
+        .empty-tip {
+            text-align: center;
+            padding: 36px 16px;
+            color: var(--text-mute);
+            font-size: 15px;
+        }
+        /* ===== 弹窗通用 ===== */
+        .modal-wrap {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(30,50,35,0.5);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        .modal-wrap.show {
+            display: flex;
+        }
+        .modal {
+            width: 100%;
+            max-width: 680px;
+            background: var(--glass-strong);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            animation: fadeUp 0.25s ease;
+        }
+        @keyframes fadeUp {
+            from { transform: translateY(16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .modal-header h3 {
+            color: var(--primary-dark);
+            font-size: 17px;
+        }
+        .modal-close {
+            cursor: pointer;
+            color: var(--text-mute);
+            font-size: 15px;
+            background: var(--soft-bg);
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+        }
+        .modal-close:hover {
+            background: var(--soft-bg);
+            color: var(--primary-dark);
+        }
+        .search-result-item {
+            cursor: pointer;
+            padding: 14px 16px;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+            background: var(--soft-bg);
+        }
+        .search-result-item:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 3px 10px rgba(74,124,89,0.14);
+        }
+        .search-result-item h4 {
+            color: var(--primary-dark);
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .search-result-item p {
+            color: var(--text-mute);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .search-result-item .match-type {
+            font-size: 12px;
+            color: var(--warn);
+            margin-left: 8px;
+        }
+        /* ===== 病虫害分组卡片（可点击查看详情）===== */
+        .disease-group-card {
+            background: var(--glass-strong);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 1px 6px rgba(74,124,89,0.06);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .disease-group-card:hover {
+            border-color: var(--warn);
+            box-shadow: 0 4px 14px rgba(212,131,70,0.16);
+            transform: translateY(-2px);
+        }
+        .disease-group-card .dg-left {
+            flex: 1;
+            min-width: 0;
+        }
+        .disease-group-card .dg-left h4 {
+            color: var(--primary-dark);
+            font-size: 17px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .disease-group-card .dg-left p {
+            color: var(--text-mute);
+            font-size: 13px;
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .disease-count-tag {
+            display: inline-block;
+            background: var(--warn);
+            color: var(--on-accent);
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .dg-arrow {
+            color: var(--warn);
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .disease-sub-title {
+            color: var(--primary);
+            font-size: 15px;
+            margin: 18px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-soft);
+        }
+        /* ===== 花卉图鉴 ===== */
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+        }
+        .album-card {
+            background: var(--glass-strong);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 1px 6px rgba(74,124,89,0.06);
+            transition: 0.2s;
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        .album-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(74,124,89,0.16);
+        }
+        .album-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .album-card p {
+            padding: 8px 6px 0;
+            color: var(--primary-dark);
+            font-size: 14px;
+            font-weight: bold;
+        }
+        /* ===== 攻略卡片带缩略图 ===== */
+        .guide-card {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+        .guide-card .gc-img {
+            width: 86px;
+            height: 86px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid var(--border-soft);
+        }
+        .guide-card .gc-main {
+            flex: 1;
+            min-width: 0;
+        }
+        .disease-count-badge {
+            display: inline-block;
+            background: var(--warn);
+            color: var(--on-accent);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 6px;
+        }
+        /* ===== 图鉴图片点击放大 ===== */
+        .album-img-wrap {
+            overflow: hidden;
+            cursor: zoom-in;
+            position: relative;
+        }
+        .album-img-wrap img {
+            transition: transform 0.35s ease;
+        }
+        .album-img-wrap:hover img {
+            transform: scale(1.1);
+        }
+        .album-img-wrap::after {
+            content: "🔍 点击放大";
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            background: rgba(47,93,58,0.72);
+            color: var(--on-accent);
+            font-size: 12px;
+            padding: 4px 0;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+        .album-img-wrap:hover::after {
+            opacity: 1;
+        }
+        /* 大图查看遮罩 */
+        .img-viewer {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,20,12,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            cursor: zoom-out;
+            padding: 30px;
+        }
+        .img-viewer.show { display: flex; }
+        .img-viewer img {
+            max-width: 94%;
+            max-height: 92%;
+            border-radius: 12px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.55);
+            object-fit: contain;
+        }
+        .img-viewer-close {
+            position: fixed;
+            top: 16px; right: 26px;
+            color: var(--on-accent);
+            font-size: 40px;
+            line-height: 1;
+            cursor: pointer;
+            z-index: 1101;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--glass-weak);
+            transition: 0.2s;
+        }
+        .img-viewer-close:hover {
+            background: var(--glass-hover);
+            transform: rotate(90deg);
+        }
+        .img-viewer-name {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            color: var(--on-accent);
+            font-size: 17px;
+            background: rgba(47,93,58,0.7);
+            padding: 8px 22px;
+            border-radius: 20px;
+            z-index: 1101;
+        }
+        /* ===== 外貌图鉴弹窗 ===== */
+        .appearance-modal {
+            max-width: 560px;
+            text-align: center;
+        }
+        .appearance-img {
+            width: 100%;
+            max-height: 380px;
+            object-fit: cover;
+            border-radius: 14px;
+            cursor: zoom-in;
+            display: block;
+            margin: 4px auto 16px;
+            border: 1px solid var(--border-soft);
+            transition: transform 0.25s ease;
+        }
+        .appearance-img:hover {
+            transform: scale(1.02);
+        }
+        .appearance-name {
+            color: var(--primary-dark);
+            font-size: 24px;
+            font-weight: bold;
+            margin: 8px 0 12px;
+        }
+        .appearance-desc {
+            color: var(--text-sub);
+            font-size: 15.5px;
+            line-height: 1.9;
+            text-align: left;
+            background: var(--soft-bg);
+            padding: 18px 20px;
+            border-radius: 12px;
+            border-left: 5px solid var(--primary-light);
+            margin-bottom: 6px;
+        }
+        .appearance-tip {
+            color: var(--text-mute);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+    
+
+        /* =====================================================
+           玻璃拟态全局覆盖（追加在样式末尾，后定义优先）
+           ===================================================== */
+        html { background: var(--bg-from); }
+        :root[data-theme="dark"] html { background: var(--bg-from); }
+        body {
+            background-color: transparent;
+            background-image: linear-gradient(160deg, var(--bg-from) 0%, var(--bg-mid) 45%, var(--bg-to) 100%), url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20,50 C30,30 40,70 50,50 C60,30 70,70 80,50' stroke='%23dcecd8' stroke-width='1.4' fill='none' opacity='0.45'/%3E%3Cpath d='M0,20 C10,10 20,30 30,20 C40,10 50,30 60,20' stroke='%23dcecd8' stroke-width='1.1' fill='none' opacity='0.35'/%3E%3Cpath d='M0,80 C10,70 20,90 30,80 C40,70 50,90 60,80' stroke='%23dcecd8' stroke-width='1.1' fill='none' opacity='0.35'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+        /* 柔和彩色光斑背景 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 12% 18%, var(--blob1), transparent 45%),
+                radial-gradient(circle at 88% 12%, var(--blob2), transparent 42%),
+                radial-gradient(circle at 75% 85%, var(--blob3), transparent 45%),
+                radial-gradient(circle at 15% 88%, var(--blob4), transparent 42%);
+            pointer-events: none;
+        }
+        /* 顶部标题栏玻璃化 */
+        .top-bar {
+            background: var(--glass) !important;
+            backdrop-filter: blur(18px) saturate(170%);
+            -webkit-backdrop-filter: blur(18px) saturate(170%);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            box-shadow: var(--shadow-glass);
+            position: sticky;
+            top: 10px;
+            z-index: 900;
+            padding: 16px 50px 12px;
+            margin-bottom: 24px;
+        }
+        .top-bar h1 { color: var(--primary-dark); text-shadow: 0 1px 2px var(--glass-hover); }
+        .top-bar p { color: var(--text-sub); }
+        /* 主要容器玻璃化 */
+        .daily-flower,
+        .home-card,
+        .card,
+        .modal,
+        .search-box input,
+        .back-btn,
+        .filter-bar button,
+        .input-item input,
+        .input-item textarea,
+        .input-item select,
+        .album-card,
+        .guide-card {
+            background: var(--glass) !important;
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-glass);
+        }
+        .daily-flower { border-left: 7px solid var(--primary-light); }
+        .home-card:hover,
+        .card:hover,
+        .album-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glass-lg);
+        }
+        .modal { background: var(--glass-strong) !important; backdrop-filter: blur(22px) saturate(170%); -webkit-backdrop-filter: blur(22px) saturate(170%); }
+        .modal-wrap { background: rgba(10,20,14,0.35); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        :root[data-theme="dark"] .modal-wrap { background: rgba(0,0,0,0.55); }
+        .search-box input:focus {
+            background: var(--input-bg);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--glass-hover);
+        }
+        .input-item input, .input-item textarea, .input-item select { background: var(--input-bg); }
+        /* 文字颜色适配 */
+        .top-bar h1, .card h4, .home-card h2, .daily-flower h3, .modal-header h3, .album-card p, .appearance-name { color: var(--primary-dark); }
+        .top-bar p, .card p, .home-card p, .daily-flower p, .empty-tip, .disease-sub-title { color: var(--text-sub); }
+        .knowledge-block { background: var(--soft-bg); border: 1px solid var(--border-soft); }
+        .back-btn { color: var(--primary); }
+        .back-btn:hover { background: var(--soft-bg-strong); }
+        .filter-bar button { color: var(--primary); border-color: var(--primary); }
+        .filter-bar button.active { background: var(--primary); color: var(--on-accent); }
+        .category-tag { background: var(--info); }
+        .plant-day-tag { background: var(--primary-light); }
+        .sick-tag { background: var(--warn); }
+        .btn-primary { background: var(--primary); color: var(--on-accent); }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-danger { background: var(--danger); color: var(--on-accent); }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-link { color: var(--primary); }
+        /* 设置按钮与设置弹窗 */
+        .settings-btn {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--border-glass);
+            background: var(--glass-weak);
+            color: var(--primary-dark);
+            font-size: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .settings-btn:hover {
+            background: var(--glass-hover);
+            transform: translateY(-50%) rotate(45deg);
+        }
+        .settings-body { padding: 6px 2px; }
+        .setting-item { margin: 16px 0; }
+        .setting-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+        .theme-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .theme-option {
+            flex: 1;
+            min-width: 130px;
+            padding: 14px 10px;
+            border-radius: 14px;
+            border: 2px solid var(--border-soft);
+            background: var(--soft-bg);
+            color: var(--text-sub);
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .theme-option:hover { border-color: var(--primary-light); }
+        .theme-option.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: var(--on-accent);
+            box-shadow: 0 4px 14px var(--glass-hover);
+        }
+        .setting-tip { font-size: 12.5px; color: var(--text-mute); margin-top: 14px; line-height: 1.7; }
+        /* 深色模式细节微调 */
+        :root[data-theme="dark"] .daily-flower,
+        :root[data-theme="dark"] .home-card,
+        :root[data-theme="dark"] .card,
+        :root[data-theme="dark"] .search-box input,
+        :root[data-theme="dark"] .back-btn,
+        :root[data-theme="dark"] .filter-bar button,
+        :root[data-theme="dark"] .input-item input,
+        :root[data-theme="dark"] .input-item textarea,
+        :root[data-theme="dark"] .input-item select,
+        :root[data-theme="dark"] .album-card,
+        :root[data-theme="dark"] .guide-card {
+            background: var(--glass);
+        }
+        :root[data-theme="dark"] .modal {
+            background: var(--glass-strong);
+        }
+        :root[data-theme="dark"] .appearance-desc {
+            background: var(--soft-bg);
+            border-left-color: var(--primary-light);
+        }
+</style>
+</head>
+<body>
+    <div class="page">
+
+        <!-- 顶部标题 -->
+        <div class="top-bar">
+            <h1>🌱 智能花卉养殖系统</h1>
+        <button class="settings-btn" onclick="openSettings()" title="界面设置">⚙️</button>
+            <p>养花攻略 · 种植打卡 · 病虫害防治</p>
+        </div>
+
+        <!-- 每日一花（首页） -->
+        <div class="daily-flower">
+            <h3>🌼 今日随机花卉推荐</h3>
+            <div id="dailyFlowerBox"></div>
+        </div>
+
+        <!-- 全局搜索框（初始首页即可用） -->
+        <div class="search-area">
+            <input id="searchInput" type="text" placeholder="🔍 输入花卉名称/症状关键词，如：月季、黄叶、黑斑..." autocomplete="off">
+            <div class="search-tip">输入关键词即可在首页弹出搜索结果，点击结果可查看完整攻略</div>
+        </div>
+
+        <!-- 首页三大模块入口 -->
+                <div class="home-module-wrap" id="homePage">
+            <div class="home-card" onclick="openSubPage('guide')">
+                <h2>🌿 植物攻略库</h2>
+                <p>全部花卉养护知识、花语、冷知识，并整合每款花卉的专属病虫害症状与用药方案，一站式查询。</p>
+            </div>
+            <div class="home-card" onclick="openSubPage('album')">
+                <h2>🖼️ 花卉图鉴</h2>
+                <p>以图片形式浏览全部花卉，欣赏它们的花姿与外貌特征，看图识花。</p>
+            </div>
+            <div class="home-card" onclick="openSubPage('myplant')">
+                <h2>📝 种植打卡</h2>
+                <p>添加你的盆栽记录，自动计算种植天数，管理养花清单，记录成长历程。</p>
+            </div>
+        </div>
+
+
+        <!-- 子页面1：植物攻略库 -->
+        <div class="sub-page" id="guide">
+            <button class="back-btn" onclick="backHome()">← 返回首页</button>
+            <div class="filter-bar" id="categoryFilter"></div>
+            <div id="guideList"></div>
+        </div>
+
+        <!-- 子页面：花卉图鉴 -->
+        <div class="sub-page" id="album">
+            <button class="back-btn" onclick="backHome()">← 返回首页</button>
+            <div id="albumList"></div>
+        </div>
+
+        <!-- 子页面2：种植打卡 -->
+        <div class="sub-page" id="myplant">
+            <button class="back-btn" onclick="backHome()">← 返回首页</button>
+            <div class="card" style="cursor:default;">
+                <h4>➕ 添加新种植花卉</h4>
+                <div class="input-item">
+                    <label>花卉名称</label>
+                    <input id="addPlantName" placeholder="如：绿萝">
+                </div>
+                <div class="input-item">
+                    <label>种下日期（不可选择未来日期）</label>
+                    <input id="addPlantDate" type="date">
+                </div>
+                <button class="btn btn-primary" onclick="addMyPlant()">保存种植记录</button>
+            </div>
+            <div id="myPlantList"></div>
+        </div>
+
+
+    </div>
+
+    <!-- 搜索结果弹窗（初始首页输入即弹出） -->
+    <div class="modal-wrap" id="searchModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="searchModalTitle">搜索结果</h3>
+                <button class="modal-close" onclick="closeSearchModal()">✕ 返回首页</button>
+            </div>
+            <div id="searchResultList"></div>
+        </div>
+    </div>
+
+    <!-- 花卉详情弹窗 -->
+    <div class="modal-wrap" id="plantModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>花卉详情</h3>
+                <button class="modal-close" onclick="closeModal()">✕ 关闭</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+
+    <!-- 花卉外貌图鉴弹窗 -->
+    <div class="modal-wrap" id="appearanceModal">
+        <div class="modal appearance-modal">
+            <div class="modal-header">
+                <h3>🌸 花卉外貌图鉴</h3>
+                <button class="modal-close" onclick="closeAppearance()">✕ 关闭</button>
+            </div>
+            <div id="appearanceContent"></div>
+        </div>
+    </div>
+
+    <!-- 界面设置弹窗 -->
+    <div class="modal-wrap" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⚙️ 界面设置</h3>
+                <button class="modal-close" onclick="closeSettings()">✕ 关闭</button>
+            </div>
+            <div class="settings-body">
+                <div class="setting-item">
+                    <div class="setting-label">🎨 主题模式</div>
+                    <div class="theme-options">
+                        <button class="theme-option" data-theme-val="light" onclick="setTheme('light')">☀️ 正常模式</button>
+                        <button class="theme-option" data-theme-val="dark" onclick="setTheme('dark')">🌙 深色模式</button>
+                    </div>
+                </div>
+                <div class="setting-tip">💡 主题选择会自动保存，下次打开仍然生效。</div>
+            </div>
+        </div>
+    </div>
+    <!-- 图片放大查看 -->
+    <div class="img-viewer" id="imgViewer" onclick="closeImgViewer()">
+        <span class="img-viewer-close" onclick="closeImgViewer()">×</span>
+        <img id="imgViewerPic" src="" alt="花卉大图">
+        <div class="img-viewer-name" id="imgViewerName"></div>
+    </div>
+<script>
+
+// ===================== 主题设置（正常/深色模式） =====================
+function getTheme() { return localStorage.getItem("flowerTheme") || "light"; }
+function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem("flowerTheme", t);
+    const opts = document.querySelectorAll(".theme-option");
+    opts.forEach(function (btn) {
+        btn.classList.toggle("active", btn.getAttribute("data-theme-val") === t);
+    });
+}
+function setTheme(t) { applyTheme(t); }
+function openSettings() {
+    applyTheme(getTheme());
+    document.getElementById("settingsModal").classList.add("show");
+}
+function closeSettings() {
+    document.getElementById("settingsModal").classList.remove("show");
+}
+applyTheme(getTheme());
+
+// ===================== 花卉数据库（含养护、花语、冷知识） =====================
+const flowerGuideData = [
+    {name:"绿萝", category:"草本", light:"喜明亮散射光，禁止强光直射，耐阴性强，适合室内客厅、书房", water:"见干见湿，春夏保持盆土微润，秋冬控水，避免积水烂根", fertilizer:"春秋每15天一次稀薄氮磷钾通用液肥，冬季停肥", tip:"可土培可水培，通风不良易黄叶黑斑，长期阴暗会徒长", flowerLanguage:"绿萝的花语是‘守望幸福、坚韧善良、生生不息’。它没有艳丽的花朵，却常年翠绿盎然，默默装点生活、净化空气，代表着平凡生活里长久的陪伴与温柔，寓意无论生活平淡与否，始终保持蓬勃向上的生命力，守护身边人的幸福与安稳。", coldKnowledge:"绿萝是公认的‘天然空气净化器’，可吸附甲醛、苯、三氯乙烯等有害气体；原产所罗门群岛热带雨林；民间素有‘一盆绿萝旺全屋’的说法；藤蔓无限攀爬，象征生生不息、步步高升。"},
+    {name:"玉露", category:"多肉", light:"喜柔和散射光，惧怕暴晒，暴晒会叶片灰化干瘪失去通透感", water:"极度耐旱，干透浇透，夏季高温休眠停水，冬季低温控水", fertilizer:"仅春秋施多肉专用缓释肥，浓度极低，夏冬停肥", tip:"叶片通透饱满为最佳状态，闷热积水不通风是化水烂根主因", flowerLanguage:"玉露的花语是‘晶莹剔透、冰清玉洁、纯净美好’。叶片饱满通透、温润如玉，象征干净纯粹的内心、不世俗的品格，寓意生活清澈明朗、岁岁安然。", coldKnowledge:"玉露属阿福花科多肉，非传统景天科；通透感由光照、湿度、温差共同决定，闷养可更饱满透亮；生长极慢，属‘慢热型’绿植，养护越久颜值越高。"},
+    {name:"月季", category:"木本", light:"喜全日照，每日6小时以上直射阳光，缺光徒长不开花", water:"见干见湿，花期保持微湿，避免积水，雨后排水通风", fertilizer:"花期前磷酸二氢钾促花，生长期通用复合肥，花后修剪补肥", tip:"被称为‘药罐子’，高湿不通风极易爆发病虫害，需勤通风勤修剪", flowerLanguage:"月季的花语是‘等待有希望的希望、幸福、光荣、美艳长新’。月季月月开花、四季不断，象征生生不息的希望与永不落幕的美好，代表执着的等待与坚定的热爱，寓意生活常开不败、岁岁欢愉。", coldKnowledge:"月季是中国十大名花之一，被誉为‘花中皇后’；与玫瑰相似但叶片光滑、刺少、花期超长；全世界月季品种超三万种，颜色形态各不相同。"},
+    {name:"栀子花", category:"木本", light:"喜明亮散射光，怕强光暴晒，半阴环境即可旺盛生长", water:"喜湿润喜酸性，保持微湿，空气干燥需经常喷雾增湿", fertilizer:"生长期定期浇灌硫酸亚铁调酸，花期前补磷钾肥", tip:"土壤碱化、缺水、暴晒是黄叶掉苞的核心原因", flowerLanguage:"栀子花的花语是‘永恒的爱、一生守候、喜悦纯洁’。洁白无瑕、香气清雅绵长，代表纯粹干净的爱意与不离不弃的守候，象征真挚专一的感情，寓意美好纯粹、岁岁安然。", coldKnowledge:"栀子花是典型酸性花卉，北方养护必须定期调酸，否则极易黄叶；花香淡雅可制花茶香囊；花期在初夏，是夏天的代表性花卉；民间视为吉祥花。"},
+    {name:"发财树", category:"木本", light:"耐阴喜散光，严禁暴晒，适合室内办公室客厅", water:"极度怕涝，宁干勿湿，盆土干透再浇，积水必烂根", fertilizer:"春夏生长期薄肥勤施，秋冬停肥", tip:"根系极弱，最怕积水、低温、闷热，少浇水是养护核心", flowerLanguage:"发财树的花语是‘招财进宝、财源广进、平安顺遂、步步高升’。作为经典吉祥绿植，象征财富、好运与安稳，寓意家业兴旺、财源滚滚、生活富足顺遂。", coldKnowledge:"发财树原名瓜栗，并非天生招财，是民间赋予的吉祥寓意；树干膨大可储水储养分，所以极度耐旱；室内摆放可净化空气、舒缓视觉疲劳。"},
+    {name:"长寿花", category:"多肉", light:"喜充足散射光，光照足开花密集，缺光徒长不开花", water:"肉质叶片储水强，干透浇水，忌积水", fertilizer:"秋季增施磷钾肥促花苞，冬季花期停肥", tip:"短日照植物，秋冬开花，花期超长可达半年", flowerLanguage:"长寿花的花语是‘福寿安康、大吉大利、长命百岁、喜乐无忧’。花期超长、生命力旺盛，象征健康长寿、福气满满，是寓意极佳的居家吉祥花卉。", coldKnowledge:"长寿花属景天科多肉，叶片肥厚储水；花期从12月持续到次年5月，是冬季主力年宵花；扦插成活率极高，随手插枝就能活。"},
+    {name:"吊兰", category:"草本", light:"喜温暖散射光，耐阴，适合室内悬挂养护，怕暴晒", water:"生长期保持微湿，冬季控水，避免积水烂根", fertilizer:"每月一次稀薄液肥，观叶肥为主", tip:"抽藤能力强，垂吊观赏性强，净化空气能力优秀", flowerLanguage:"吊兰的花语是‘无奈但又给人希望、朴实、纯洁、宁静’。它不争不抢、静静生长，代表平淡安稳的生活态度，寓意岁月静好、平安无忧。", coldKnowledge:"吊兰被称为‘空气卫士’，净化甲醛能力极强；匍匐茎会抽出小吊兰可分株繁殖；养护极其粗放，新手零难度；四季常绿，是经典居家绿植。"},
+    {name:"虎皮兰", category:"草本", light:"耐阴耐晒，适应性极强，散光养护最佳", water:"极度耐旱，1-2周浇一次即可，宁干勿湿", fertilizer:"春夏少量复合肥，秋冬停肥", tip:"夜间释放氧气，适合卧室摆放", flowerLanguage:"虎皮兰花语：‘坚定、刚毅、不屈不挠、守护平安’。叶片挺拔直立、坚韧有力，象征坚韧不拔的品格，寓意家宅安稳、挡煞纳福。", coldKnowledge:"虎皮兰是少数夜间释放氧气的绿植，卧室养护有益睡眠；耐贫瘠、耐干旱、耐阴，几乎养不死；叶片纹路酷似虎皮故而得名。"},
+    {name:"熊童子", category:"多肉", light:"明亮散射光，光照足叶片肥厚变红，缺光徒长", water:"干透浇透，夏季休眠控水，冬季低温少水", fertilizer:"春秋多肉专用肥薄施", tip:"叶片毛茸茸酷似小熊爪，高温高湿易掉叶烂叶", flowerLanguage:"熊童子花语：‘温柔、可爱、治愈、陪伴’。外形软萌可爱，自带治愈感，象征温暖陪伴、生活可爱温柔。", coldKnowledge:"熊童子是景天科多肉，叶片绒毛可锁水；光照温差足叶尖会变红，像涂了指甲的小熊爪；休眠期掉叶属正常；生长缓慢，适合桌面小盆栽。"},
+    {name:"金钱树", category:"草本", light:"喜散光耐阴，严禁暴晒", water:"肉质根茎储水极强，极少浇水，积水烂根必死", fertilizer:"春夏薄肥，秋冬停肥", tip:"叶片成对生长，寓意圆满招财", flowerLanguage:"金钱树花语：‘招财纳福、富贵圆满、兴旺顺遂’。叶片翠绿成对，象征团圆美满、财源不断。", coldKnowledge:"金钱树学名雪铁芋，无主茎、地下块根储水；极少开花，开花被视为吉兆；耐阴好养，适合办公室居家。"},
+    {name:"茉莉", category:"木本", light:"喜强光喜日晒，越晒越香越开花", water:"喜湿润，生长期勤浇水，避免干旱", fertilizer:"花期前磷钾肥勤施，花后修剪补肥", tip:"‘晒不死的茉莉，阴不死的栀子’，光照是开花关键", flowerLanguage:"茉莉花语：‘忠贞爱情、质朴纯洁、迷人芬芳、默默守护’。花香清雅脱俗，象征纯粹专一的情感，寓意温柔长久、岁岁芬芳。", coldKnowledge:"茉莉是世界著名香花，花香可安神舒缓；‘花开满园香’，花期集中在夏秋；修剪越勤、分枝越多、开花越密；可制作花茶香包精油。"},
+    {name:"满天星", category:"草本", light:"喜充足光照，全日照养护最佳", water:"喜干燥透气，忌积水", fertilizer:"生长期通用肥，花期磷钾肥", tip:"分枝密集花量巨大，适合盆栽插花", flowerLanguage:"满天星花语：‘甘愿做配角的爱、默默守护、纯粹温柔、无尽思念’。花朵细小繁多、簇拥成团，象征默默无闻、温柔长久的陪伴。", coldKnowledge:"满天星常作插花配花，但本身极具美感；花期超长，干花可永久保存；寓意低调温柔、不争不抢。"},
+    {name:"郁金香", category:"草本", light:"喜充足光照，冷凉环境生长最佳", water:"见干见湿，忌积水烂球", fertilizer:"生长期薄肥，花期停肥", tip:"耐寒怕热，夏季休眠", flowerLanguage:"郁金香花语：‘博爱、体贴、高雅、富贵、真诚祝福’。花型端庄优雅，象征高贵温柔、真挚美好，寓意生活雅致顺遂。", coldKnowledge:"郁金香是荷兰国花，品种繁多色彩丰富；属球根花卉，夏季高温休眠；耐寒性极强，冬季可露天越冬；象征胜利与美好。"},
+    {name:"洋桔梗", category:"草本", light:"明亮散射光，怕暴晒，喜温暖柔和环境", water:"土干再浇，保持透气，忌积水", fertilizer:"生长期薄肥勤施", tip:"花型高级花期长，观赏性极强", flowerLanguage:"洋桔梗花语：‘真诚不变的爱、永世不忘、温柔坚定’。花型优雅高级，象征坚定不移的心意与长久的美好。", coldKnowledge:"洋桔梗常被误认为玫瑰，花期比玫瑰更长；花色清新高级，是网红切花；养护简单，室内盆栽可反复开花。"},
+    {name:"三角梅", category:"木本", light:"喜全日照，越晒开花越爆，缺光不开花", water:"花期控水，偏干养护促花苞", fertilizer:"催花专用磷钾肥勤施", tip:"喜热喜光，耐旱不耐涝，修剪促分枝", flowerLanguage:"三角梅花语：‘热情、坚韧不拔、顽强奋进’。开花热烈繁盛、花期超长，象征积极向上、永不言弃的生活态度。", coldKnowledge:"三角梅又叫叶子花，花期可长达全年；控水、多晒、勤修剪是爆花三要素；南方露天全年开花，北方室内春夏秋开花。"},
+    {name:"仙人球", category:"多肉", light:"喜强光全日照，极度喜光", water:"全年极少浇水，宁干勿湿", fertilizer:"春夏极少量缓释肥", tip:"懒人必备，几乎养不死", flowerLanguage:"仙人球花语：‘坚强、刚毅、外刚内柔、守护幸福’。外表坚硬带刺，内心柔软坚韧，象征坚强独立、默默守护。", coldKnowledge:"仙人球夜间释放氧气适合卧室；抗辐射、耐干旱、耐贫瘠；开花寓意好运将至；生命力极其顽强。"},
+    {name:"文竹", category:"草本", light:"喜散光怕暴晒，阴凉湿润环境最佳", water:"保持微湿，经常喷雾增湿", fertilizer:"稀薄观叶肥，少施勤施", tip:"枝叶轻盈雅致，喜湿润怕干燥", flowerLanguage:"文竹花语：‘文雅、从容、永恒、真挚友谊’。姿态清雅飘逸，象征君子之风、淡然从容。", coldKnowledge:"文竹自古是文人雅花，寓意书香门第；枝叶轻盈极具国风美感；干燥、暴晒、积水是黄叶主因。"},
+    {name:"太阳花", category:"草本", light:"全日照暴晒养护，越晒开花越多", water:"耐旱耐晒，土干浇水", fertilizer:"通用薄肥即可", tip:"生命力超级顽强，俗称‘死不了’", flowerLanguage:"太阳花花语：‘勇敢、热烈、积极向上、永远向阳’。永远朝向阳光绽放，象征乐观开朗、不惧风雨。", coldKnowledge:"太阳花生命力极强，掐枝即活、落地生根；花期从春末开到深秋；光照越足花越密集，阴天闭合晴天开放。"},
+    {name:"兰花", category:"草本", light:"柔和散射光，严禁暴晒", water:"润而不涝，透气为主", fertilizer:"兰花专用肥薄施", tip:"喜通风喜湿润，怕闷热积水", flowerLanguage:"兰花花语：‘高雅、纯洁、淡泊、君子气度’。花中四君子之一，象征清雅脱俗、品德高尚。", coldKnowledge:"兰花是传统名花，象征高洁品格；根系肉质怕积水，必须用透气植料；喜阴凉通风，忌高温闷热。"},
+    {name:"铜钱草", category:"草本", light:"喜光耐阴，光照足叶片圆润翠绿", water:"可水培可土培，喜水湿不怕水多", fertilizer:"通用液肥半月一次", tip:"长势迅猛，爆盆速度极快", flowerLanguage:"铜钱草花语：‘财源滚滚、团圆美满、平安富贵’。叶片圆润似铜钱，象征招财纳福、圆满顺遂。", coldKnowledge:"铜钱草水陆两栖极好养活；光照充足、水分充足即可快速爆盆；寓意招财聚财，是热门吉祥绿植。"},
+    {name:"绣球", category:"木本", light:"明亮散射光，避开正午烈日，上午柔和阳光最佳", water:"喜湿润，保持微湿不积水，高温早晚叶面喷水", fertilizer:"春生长期复合肥，孕蕾期磷酸二氢钾；调蓝用硫酸铝", tip:"花色随土壤酸碱度改变，大花绣球需低温春化才能大量开花", flowerLanguage:"绣球花语是‘团圆美满、希望、忠贞、永恒’。数十朵小花簇拥成圆润饱满的花球，代表相聚团圆，象征家人朋友长久相伴；也寓意绝境之中依然存有希望。", coldKnowledge:"绣球颜色由土壤pH值和铝离子共同决定；原产我国四川一带，后传入欧洲改良；花瓣上的大花实为不孕花，真正小花藏在花球内部；全株含微量毒素不可食用。"},
+    {name:"风信子", category:"草本", light:"充足柔和光照，缺光花茎徒长倒伏，光太强缩短花期", water:"水培水面距球根1cm不浸泡种球；土培见干见湿忌积水", fertilizer:"出芽后薄施磷钾肥，现蕾后补肥，开花后停肥", tip:"典型秋植球根，低温春化才开花，花后养球夏季休眠", flowerLanguage:"风信子花语是‘点燃生命之火，纵享丰富人生’，代表永远的怀念、爱意与幸福。开花香气浓烈馥郁，象征重生与新生，寓意告别过往遗憾，开启崭新美好生活。", coldKnowledge:"风信子原产地中海沿岸，是著名香花球根；花香浓度高，密闭卧室勿大量摆放；种球汁液有刺激性，修剪建议戴手套；早春开花，是欧美经典春季花卉。"},
+    {name:"白掌（一帆风顺）", category:"草本", light:"明亮散射光，耐阴性优秀，不能强光直射，过暗不开花", water:"保持微润，缺水叶片立刻下垂，积水易烂根，空气干燥多喷雾", fertilizer:"生长期薄施磷钾肥促花，氮肥过多只长叶不开花", tip:"叶片下垂优先检查缺水，对氨气甲醛净化能力强", flowerLanguage:"白掌花语是‘一帆风顺、平安顺遂、纯洁安宁’。洁白佛焰花苞如同扬起的白帆，寓意事业生活一路顺畅，无灾无难；象征内心平和纯净，万事称心如意。", coldKnowledge:"白掌又叫白鹤芋，白色部分不是花瓣而是特化的苞片，真正小花是中间肉穗；缺水时叶片会自动下垂，补水后短时间恢复；汁液有轻微刺激性避免误食。"},
+    {name:"红掌", category:"草本", light:"明亮散射光，忌烈日暴晒，光照合适花色红艳", water:"保持微润，土表发干再补水，忌积水，喜高空气湿度", fertilizer:"花期持续施磷钾肥，薄肥勤施，氮肥过多只长叶", tip:"花期极长，单朵花可维持2-3个月，常年可开花", flowerLanguage:"红掌花语：大展宏图、热情热血、鸿运当头。火红的苞片象征热烈的祝福，寓意事业腾飞、前程似锦，也代表热烈真挚的感情，适合开业乔迁摆放。", coldKnowledge:"红掌又名花烛，红色部分同样是苞片，中间肉穗花序才是小花；原产热带雨林喜温暖高湿怕冷；花期持久是全球畅销切花；汁液含草酸钙勿入口。"},
+    {name:"小木槿", category:"木本", light:"全日照，光照越足开花量越大，缺光徒长花苞少", water:"生长快耗水大，土表干了就浇，夏季早晚补水", fertilizer:"薄肥勤施，生长期通用肥，孕蕾期磷酸二氢钾", tip:"修剪关键，花后剪残花打顶促分枝；生长飞快易爆盆", flowerLanguage:"小木槿花语：温柔坚韧、珍惜当下、生生不息。花朵轻盈秀气持续开放，代表平凡日子里源源不断的美好，寓意温柔而强大，珍惜眼前每一段时光。", coldKnowledge:"小木槿是南非葵并非木槿，只是外形相似；生长速度在开花灌木里属第一梯队，温度合适几乎全年开花；毛细根多不耐闷根，土壤透气是养护重点。"},
+    {name:"蓝雪花", category:"木本", light:"全日照最佳，半阴也能生长但开花变少", water:"见干见湿，旺盛期需水量大，夏季高温补水", fertilizer:"春夏生长期通用复合肥搭配磷钾肥交替施用", tip:"耐修剪，耐热性强，夏天持续开花，怕冷低温会冻伤", flowerLanguage:"蓝雪花花语：冷淡、忧郁、勇敢、率真。清新淡雅的淡蓝色花朵自带清冷气质，寓意即便身处困境，依旧保有勇敢乐观的本心，安静从容不随波逐流。", coldKnowledge:"蓝雪花原产南非，耐热能力强，是夏季花园主力；蓝色在花卉里属少见的冷色调；枝条柔软可牵引做成花墙花柱；低温低于5℃易冻伤，北方冬季室内养护。"},
+    {name:"蟹爪兰", category:"多肉", light:"明亮散射光，短日照花卉，秋冬孕育花苞，强光灼伤叶片", water:"肉质茎储水，干透浇透，孕蕾期勿频繁搬动防掉苞", fertilizer:"秋天增施磷钾肥促花苞，开花后、夏季高温停肥", tip:"短日照植物，秋天黑夜足够才长花苞；嫁接长势更强", flowerLanguage:"蟹爪兰花语：鸿运当头、运转乾坤、锦上添花。花朵垂吊盛开，花期临近圣诞新年，寓意好运降临，喜事接踵而至，生活锦上添花。", coldKnowledge:"蟹爪兰是仙人掌科植物，原生环境是热带雨林附生植物，不是沙漠仙人掌；茎节像螃蟹爪子得名；孕蕾期挪动花盆极易大量落蕾；花期冬春是热门年宵花卉。"},
+    {name:"酢浆草", category:"草本", light:"全日照，光照充足开花爆盆，阴天夜晚花朵闭合", water:"见干见湿，球根怕积水，雨季控水", fertilizer:"生长期薄肥，孕蕾期磷钾肥，休眠停水停肥", tip:"品种繁多，休眠时地上枯萎地下球根留存来年发芽", flowerLanguage:"酢浆草花语：璀璨的心、爱国、欢乐。小巧精致的小花向阳开放，象征简单纯粹的快乐，寓意拥抱平凡生活里细碎的美好，永远保持乐观欢喜。", coldKnowledge:"酢浆草分布全球，园艺品种花色丰富；属球根类小草花，繁殖能力极强；花朵感夜性傍晚闭合，太阳升起重新绽放；叶片含草酸不可大量食用。"},
+    {name:"天竺葵", category:"草本", light:"充足散射光，春秋多晒，夏季高温遮阴", water:"见干见湿，忌积水闷根，夏季高温休眠减少浇水", fertilizer:"春秋生长季薄肥，孕蕾磷钾肥，夏冬停肥", tip:"有特殊气味可驱赶部分蚊虫，夏季高温休眠注意通风降温", flowerLanguage:"天竺葵花语：幸福就在身边、思念、怀念。花朵成团盛开色彩丰富，代表微小而触手可及的幸福，寓意珍惜身边人，藏着绵长温柔的思念。", coldKnowledge:"天竺葵原产南非，是阳台经典开花植物；叶片有独特挥发性香气可驱赶蚜虫小飞虫；很多香氛产品使用天竺葵精油；夏季怕闷热高温高湿易黑腐需通风。"},
+    {name:"倒挂金钟", category:"木本", light:"明亮散射光，怕夏季烈日暴晒，凉爽环境生长最佳", water:"保持微润不积水，高温休眠期控水，缺水易落叶", fertilizer:"春秋薄肥勤施，孕蕾磷钾肥，夏季高温完全停肥", tip:"喜凉怕热，夏天高温极易休眠死亡，俗称‘夏必死’", flowerLanguage:"倒挂金钟花语：相信爱情、热烈的心、永远相信美好。花朵向下垂吊像一盏盏精致小灯笼，寓意怀揣热忱，永远相信爱与希望。", coldKnowledge:"倒挂金钟又名灯笼花，花朵造型独特像悬挂的花灯；原生凉爽山地极怕高温闷热，28℃以上生长变差32℃极易枯萎；修剪打顶可促分枝花量翻倍。"},
+    {name:"玫瑰", category:"木本", light:"全日照，每日6小时直射阳光，缺光徒长开花少", water:"见干见湿，花期保持微湿，严禁积水，雨后排水通风", fertilizer:"生长期复合肥，孕蕾期磷酸二氢钾，花后修剪补肥", tip:"与月季易混淆，玫瑰叶片褶皱刺密；高湿不通风易黑斑白粉病", flowerLanguage:"玫瑰花语：爱情、浪漫、美好、真挚告白。不同花色寓意不同，红玫瑰代表热恋，白玫瑰代表纯洁，粉玫瑰代表心动。玫瑰象征热烈真挚的爱意，是传递心意的经典花卉。", coldKnowledge:"真正的玫瑰大多一年只开一次花，市面上情人节售卖的切花玫瑰实际是现代月季；玫瑰叶片表面褶皱背面带绒毛；花瓣可提取玫瑰精油用于香水护肤品。"},
+    {name:"牡丹", category:"木本", light:"全日照，充足阳光，夏季正午适当遮阴", water:"耐旱怕涝，干透浇透，雨季一定排水，积水极易烂根", fertilizer:"秋冬基肥，春季孕蕾磷钾肥，花后补肥，夏季停肥", tip:"喜凉需低温春化才能开花；‘牡丹长一尺退八寸’，秋天适合栽种", flowerLanguage:"牡丹花语：富贵圆满、雍容华贵、吉祥繁荣。牡丹被誉为花中之王，象征高贵、繁荣与吉祥，寓意家业兴旺、富贵安康。", coldKnowledge:"牡丹是中国十大名花之首，自古被尊为花王；适合秋季移栽，春天移栽不容易开花；品种繁多花色丰富；牡丹根皮就是中药丹皮。"},
+    {name:"向日葵", category:"草本", light:"全日照，必须充足直射阳光，缺光植株瘦弱花盘小", water:"苗期控水蹲苗，花期保持土壤湿润，忌积水烂根", fertilizer:"生长期氮肥壮苗，孕蕾期增施磷钾肥促花盘膨大", tip:"花盘会跟随太阳转动，成熟后固定朝东；长势快需足够空间", flowerLanguage:"向日葵花语：沉默的爱、忠诚、阳光、积极向上。永远向着太阳，象征乐观温暖不惧困难，寓意满怀希望，永远向阳而生。", coldKnowledge:"向日葵追随太阳的现象只出现在花蕾阶段，花朵完全开放后不再转动；种子就是葵花籽；植株体内生长素造成向光弯曲；高大品种可长到两米以上。"},
+    {name:"康乃馨", category:"草本", light:"喜充足散射光，春秋多晒，夏季中午适当遮阴，光照不足枝条徒长、开花少", water:"见干见湿，盆土微润不积水，花期需水量大，忌涝根", fertilizer:"生长期每周一次稀薄通用液肥，孕蕾期增施磷酸二氢钾，花后追肥复壮", tip:"花茎易弯折，生长期及时摘心打顶促分枝；喜凉爽，夏季高温生长变慢", flowerLanguage:"康乃馨的花语是‘母爱、温馨、真情、尊敬’。它是公认的母亲花，花瓣层叠温柔，象征母爱的无私与包容，寓意感恩与敬爱，代表对亲人温暖长久的牵挂，也寄托健康平安的美好祝愿。", coldKnowledge:"康乃馨是世界四大切花之一，全球品种超千种；原产地中海沿岸，是石竹科代表花卉；花香清甜，花瓣可食用，常用于花茶与甜点点缀；母亲节赠送康乃馨的习俗源于美国，后风靡全球。"},
+    {name:"雏菊", category:"草本", light:"喜充足光照，全日照或明亮散射光均可，缺光易徒长倒伏", water:"见干见湿，忌积水，盆土透气优先", fertilizer:"生长期薄肥勤施，花期前增施磷钾肥", tip:"花量巨大，适合密植盆栽或花坛点缀；花后及时修剪可再次开花", flowerLanguage:"雏菊的花语是‘天真、纯洁、深藏在心底的爱、和平与希望’。花朵小巧素净、清丽可人，象征单纯美好的心灵与不掺杂质的感情，也代表藏在心底、默默祝福的温柔爱意。", coldKnowledge:"雏菊原产欧洲，是意大利的国花；花名源自拉丁语‘太阳之花’，因日出开放、日暮闭合得名；雏菊可入药，有清热消炎的民间用法；它还是欧洲占卜爱情‘他爱我，他不爱我’的经典道具花。"},
+    {name:"芍药", category:"草本", light:"喜充足阳光，全日照最佳，夏季暴晒适当遮阴", water:"喜湿润怕积水，生长期保持微湿，花期控水防烂根", fertilizer:"秋冬施基肥，春季孕蕾期磷钾肥，花后补肥养根", tip:"有‘花相’美誉，与牡丹并称‘花中二绝’；秋季分株移栽最佳", flowerLanguage:"芍药的花语是‘情有独钟、依依惜别、真诚不变’。花开雍容大气、芳香清雅，象征真挚专一的爱恋与离别时的深情不舍，古代以芍药相赠寄托相思，寓意美丽端庄、情深意重。", coldKnowledge:"芍药是我国传统名花，栽培历史超三千年；‘牡丹为王，芍药为相’，同属芍药科；芍药根可入药，即中药白芍；单朵花期虽短，但花型硕大、色彩艳丽，是‘花仙’般的存在。"},
+    {name:"龟背竹", category:"草本", light:"喜明亮散射光，耐阴性好，忌强光直射，暴晒叶片灼伤发黄", water:"喜湿润，盆土保持微湿，叶面经常喷雾增湿，忌积水", fertilizer:"春秋每月一次稀薄氮钾肥，冬季停肥", tip:"叶片开孔裂叶是成熟标志；攀援植物，可绑支柱引导向上生长", flowerLanguage:"龟背竹的花语是‘健康长寿、坚韧顽强、平安富贵’。叶片宽大奇特、常年翠绿，象征旺盛的生命力与坚韧不拔的品格，寓意健康平安、福寿绵长，是经典的居家吉祥观叶植物。", coldKnowledge:"龟背竹原产墨西哥热带雨林，是大型攀援观叶植物；叶片开孔裂叶是为了让雨水透过、避免损伤，是长期进化的结果；能有效净化室内空气，吸附甲醛等有害物质；夜间同样释放氧气，适合卧室摆放。"},
+    {name:"蝴蝶兰", category:"草本", light:"喜明亮散射光，忌强光直射，冬季可适当多晒", water:"水苔栽种见干见湿，根部发白再浇水，忌积水烂根", fertilizer:"生长期稀薄兰花专用肥，花期前增施磷钾肥，冬季低温停肥", tip:"肉质气生根，需透气透水；花梗开花后可从花梗节间剪除，促二次开花", flowerLanguage:"蝴蝶兰的花语是‘幸福向你飞来、高贵优雅、丰盛富足’。花型如翩翩彩蝶，姿态优雅飘逸，象征美好幸福不期而至，寓意事业有成、爱情甜蜜、生活富足美满，是春节和乔迁的热门馈赠佳礼。", coldKnowledge:"蝴蝶兰是兰科蝴蝶兰属，原产东南亚热带雨林，附生于树干岩石上；单枝花箭可开十几朵花，花期长达2-3个月；是‘洋兰皇后’，也是全球销量最大的兰科盆花；对温度敏感，低于15℃易落花。"},
+    {name:"君子兰", category:"草本", light:"喜柔和散射光，忌强光直射，光线过强叶片发黄", water:"见干见湿，肉质根怕积水，宁干勿湿", fertilizer:"春秋施稀薄复合肥，孕蕾期磷钾肥，冬季低温停肥", tip:"叶片整齐对称排列为佳品；每年换盆一次，肉质根需透气植料", flowerLanguage:"君子兰的花语是‘君子谦谦、温和有礼、高贵脱俗’。叶片挺拔如剑、花姿端庄大方，象征品行高洁、淡泊从容的君子之风，寓意家庭和睦、事业顺利，是象征品德与福气的经典室内名花。", coldKnowledge:"君子兰原产南非，是石蒜科常绿草本；寿命可达数十年，能年年开花；叶片有吸附灰尘、净化空气的作用；民间认为君子兰开花是家宅吉兆；它开花对温差有要求，秋冬昼夜温差大才易抽箭。"},
+    {name:"米兰", category:"木本", light:"喜充足光照，全日照最佳，光照越足开花越香", water:"见干见湿，生长期保持微润，花期控水防落花", fertilizer:"生长期薄肥勤施，花期前磷钾肥，冬季停肥", tip:"花香浓郁清雅，花小如米粒故称米兰；喜温暖怕寒冷，冬季需室内过冬", flowerLanguage:"米兰的花语是‘有爱就有生命、平凡中的伟大’。花朵细碎金黄、香气沁人，不张扬却芬芳持久，象征平凡日子里朴素而深沉的付出与爱，寓意默默奉献、岁月留香。", coldKnowledge:"米兰学名米仔兰，是楝科常绿灌木；花虽小但香气极浓，可提炼香精；原产我国华南及东南亚，是传统香花植物；花期长，温度适宜可四季开花；民间常盆栽于庭院，寓意吉祥如意。"},
+    {name:"杜鹃花", category:"木本", light:"喜半阴半阳，春秋多晒，夏季遮阴防晒，忌烈日暴晒", water:"喜湿润，盆土保持微湿，忌积水，浇水用晾过的水", fertilizer:"喜酸性土壤，生长期稀薄酸性肥，孕蕾期磷钾肥，忌浓肥", tip:"土壤碱化易黄叶；花后及时修剪残花；喜凉爽通风，怕闷热", flowerLanguage:"杜鹃花的花语是‘永远属于你、繁荣昌盛、思乡之情’。花开热烈烂漫、漫山遍野，象征真挚炽烈的情感与对故土家园的眷恋，寓意生活红红火火、家业繁荣兴旺，是充满生机与热情的吉祥之花。", coldKnowledge:"杜鹃花是我国十大名花之一，有‘花中西施’美誉；全世界杜鹃品种超900种，我国是主要原产地；杜鹃花也是著名的酸性指示植物，土壤酸碱度直接影响长势；部分野生杜鹃全株有毒，观赏即可不可误食。"},
+    {name:"山茶花", category:"木本", light:"喜半阴环境，忌烈日暴晒，冬季可全日照", water:"喜湿润，盆土保持微润，花期控水，忌积水烂根", fertilizer:"喜酸性肥，生长期薄肥勤施，孕蕾期磷钾肥，冬季停肥", tip:"花苞发育期不可随意搬动、换盆，易落蕾；喜凉爽怕高温", flowerLanguage:"山茶花的花语是‘理想的爱、谦让、高洁、谨慎’。花瓣层叠如锦、色彩饱满，盛开于寒冬早春，象征不惧风霜的高洁品格与深藏不露的理想之爱，寓意坚贞不渝、典雅端庄。", coldKnowledge:"山茶花是我国传统名花，栽培历史超千年；花期恰逢春节前后，是喜庆吉祥的年宵花；茶花品种繁多，有‘十八学士’等经典名品；花与叶均可入药，有凉血止血的民间用法；树龄可达数百年，长盛不衰。"},
+    {name:"铃兰", category:"草本", light:"喜半阴凉爽环境，忌烈日暴晒，散射光养护最佳", water:"喜湿润，盆土保持微湿，空气干燥时喷雾增湿", fertilizer:"生长期稀薄液肥，花期前磷钾肥，休眠期停肥", tip:"喜冷凉，夏季高温会休眠枯萎；地栽可成片繁殖，盆栽需透气土壤", flowerLanguage:"铃兰的花语是‘幸福归来、纯洁、温柔、不变的守候’。花朵如串串洁白小铃铛，垂挂枝头、清香怡人，象征纯净美好的情感与失而复得的幸福，寓意温柔守候、岁月静好，是极具治愈感的祝福之花。", coldKnowledge:"铃兰原产北半球温带，是百合科多年生草本；法国人每年五月一日互赠铃兰，象征好运与幸福；铃兰全株有毒，尤其是根茎，观赏养护需远离宠物和儿童；它是‘香水之都’格拉斯的重要调香原料。"},
+    {name:"紫罗兰", category:"草本", light:"喜充足光照，全日照或明亮散射光，缺光植株瘦弱", water:"见干见湿，忌积水，盆土透气优先", fertilizer:"生长期薄肥勤施，花期前增施磷钾肥", tip:"花香淡雅，花量大，适合盆栽与切花；花后修剪可促二次开花", flowerLanguage:"紫罗兰的花语是‘永恒的美、质朴、美德、清凉的爱’。花色淡雅、香气清幽，象征朴实真挚的情感与恒久不变的美丽，寓意平淡生活中的优雅与从容，适合表达温柔长久的爱意。", coldKnowledge:"紫罗兰原产地中海沿岸，是十字花科草本植物；花可食用，常用于沙拉点缀与糖渍装饰；古罗马人将其视为爱与美的象征；紫罗兰的香气能舒缓情绪，是经典香氛原料；花期在春季，是欧洲园林经典花材。"},
+    {name:"薰衣草", category:"草本", light:"喜充足光照，全日照最佳，光照不足植株松散、香气变淡", water:"耐旱怕涝，盆土干透再浇，宁干勿湿", fertilizer:"生长期极少施肥，贫瘠土壤长势更好，忌浓肥", tip:"土壤需排水极好，怕闷热潮湿；花后修剪可促二次开花", flowerLanguage:"薰衣草的花语是‘等待爱情、宁静致远、纯洁感恩’。紫蓝色花穗随风摇曳，香气清幽安神，象征对爱情的执着等待与内心的平和宁静，寓意驱散烦恼、心怀感恩，是治愈系花卉的代表。", coldKnowledge:"薰衣草原产地中海地区，是唇形科多年生草本；花、茎、叶均含芳香油，是香薰、精油、护肤品的经典原料；名字源于拉丁语‘清洗’，古罗马人用它沐浴熏香；花穗晒干可制作香包，有助眠安神的民间用法。"},
+
+];
+
+// ===================== 病虫害数据库（含用药方案） =====================
+const diseaseData = [
+    {plantName:"绿萝", symptom:"叶尖干枯焦边、叶片发黄卷曲、整体萎靡", reason:"强光暴晒、空气干燥、长期缺水", solve:"移至散光阴凉处，每日早晚叶面喷雾增湿；药物：多菌灵可湿性粉剂1000倍液整株喷洒，7天一次，连用2次。"},
+    {plantName:"绿萝", symptom:"叶片出现褐色斑点、扩散腐烂", reason:"高湿不通风、真菌感染", solve:"摘除病叶加强通风；药物：甲基托布津800倍液喷洒，间隔7天，连续2-3次。"},
+    {plantName:"玉露", symptom:"叶片透明化、发软水化、根部发黑腐烂", reason:"积水闷根、高温高湿、不通风", solve:"脱盆修剪烂根，更换颗粒透气土；药物：百菌清1000倍液浸泡根系5分钟晾干重种。"},
+    {plantName:"玉露", symptom:"叶片干瘪灰暗、无通透感", reason:"光照过强、缺水干旱", solve:"移至散光处少量补水，喷施多肉营养液恢复状态。"},
+    {plantName:"月季", symptom:"叶片黑斑、脱落、枝条枯萎", reason:"黑斑病、高湿闷热", solve:"摘除全部病叶修剪弱枝；药物：苯醚甲环唑1500倍液整株喷洒，7天一次连用3次。"},
+    {plantName:"月季", symptom:"叶片卷曲、背面细小绿虫、长势停滞", reason:"蚜虫虫害爆发", solve:"清水冲洗虫体；药物：吡虫啉2000倍液喷洒，一次即可灭虫。"},
+    {plantName:"月季", symptom:"叶片发白点状、干枯脱落", reason:"红蜘蛛虫害", solve:"药物：阿维菌素2000倍液整株喷施，间隔5天连用2次。"},
+    {plantName:"栀子花", symptom:"新叶发黄发白、叶脉绿色、长势弱", reason:"土壤盐碱化、缺铁缺酸", solve:"浇灌硫酸亚铁1000倍液每月一次；配合酸性营养液养护。"},
+    {plantName:"栀子花", symptom:"花苞发黑脱落、不开花", reason:"干旱、闷热、通风差", solve:"补水增湿加强通风，喷施磷酸二氢钾保花。"},
+    {plantName:"发财树", symptom:"叶片发黄脱落、枝干发软", reason:"积水烂根、低温冻伤", solve:"脱盆剪烂根晾干换土；药物：多菌灵浸泡根系消毒。"},
+    {plantName:"长寿花", symptom:"叶片软烂发黑、茎干腐烂", reason:"黑腐病、积水闷热", solve:"切除腐烂部位伤口晾干；药物：代森锰锌800倍液喷洒消毒。"},
+    {plantName:"吊兰", symptom:"叶尖干枯、黄叶增多", reason:"空气干燥、肥力不足", solve:"修剪枯叶喷雾增湿，喷施通用叶面肥。"},
+    {plantName:"虎皮兰", symptom:"叶片软烂、出现水渍斑点", reason:"积水真菌感染", solve:"切除病部涂抹多菌灵粉末，控水通风。"},
+    {plantName:"茉莉", symptom:"花苞掉落、叶片发黄", reason:"缺光、缺水、肥力不足", solve:"增加光照补水，喷施磷钾肥，定期通风。"},
+    {plantName:"三角梅", symptom:"掉叶掉花苞、不开花", reason:"光照不足、积水烂根", solve:"全日照养护严格控水，喷施催花肥。"},
+    {plantName:"绣球", symptom:"叶片出现褐色大斑，逐渐扩大枯黄", reason:"叶斑病，高湿多雨通风差", solve:"摘除病叶；药物：代森锰锌800倍喷洒，7天一次连用2次。"},
+    {plantName:"绣球", symptom:"花苞发黑脱落，新叶发黄", reason:"积水闷根/土壤碱化", solve:"控水通风；土壤碱化浇灌硫酸亚铁1000倍液。"},
+    {plantName:"风信子", symptom:"种球腐烂、外皮发黑，叶片发黄倒伏", reason:"软腐病，水分浸泡种球", solve:"切除腐烂部位，多菌灵1000倍浸泡消毒，晾干重新栽种。"},
+    {plantName:"白掌（一帆风顺）", symptom:"叶尖焦黄，叶片长褐色斑点", reason:"炭疽病，空气干燥+闷湿", solve:"剪掉病叶；药物：咪鲜胺1500倍整株喷雾，7天一次。"},
+    {plantName:"红掌", symptom:"叶片出现水渍状褐斑，花苞腐烂", reason:"疫霉根腐病，盆土长期潮湿", solve:"停止浇水加强通风；恶霉灵1000倍灌根。"},
+    {plantName:"小木槿", symptom:"嫩梢卷曲，叶片背面细小蚜虫", reason:"蚜虫爆发", solve:"吡虫啉2000倍喷施，5天一次。"},
+    {plantName:"蓝雪花", symptom:"叶片出现白色小点，逐渐发黄干枯", reason:"红蜘蛛，干燥高温诱发", solve:"阿维菌素2000倍喷洒，正反面叶片都喷到。"},
+    {plantName:"蟹爪兰", symptom:"茎节发软发黑腐烂，一碰就掉", reason:"根腐病，积水低温", solve:"切掉腐烂茎节，伤口涂抹多菌灵粉末，控水。"},
+    {plantName:"酢浆草", symptom:"叶片布满灰白色霉层，枯萎", reason:"白粉病，通风差湿度高", solve:"醚菌酯1500倍喷雾，间隔7天。"},
+    {plantName:"天竺葵", symptom:"叶片水渍黑斑，快速腐烂", reason:"灰霉病，低温高湿", solve:"摘除病叶；腐霉利1000倍喷洒，减少环境湿度。"},
+    {plantName:"倒挂金钟", symptom:"叶片发黄脱落，根系发黑腐烂", reason:"高温闷根，根腐病", solve:"移至阴凉通风处，恶霉灵灌根，严格控水。"},
+    {plantName:"玫瑰", symptom:"叶片白色粉状物，卷曲发黄", reason:"白粉病，高湿通风差", solve:"摘除病叶；醚菌酯1500倍喷雾，7天一次连用2次。"},
+    {plantName:"玫瑰", symptom:"叶片黑斑，落叶，枝条衰弱", reason:"黑斑病，多雨高湿", solve:"修剪病枝病叶；苯醚甲环唑1500倍喷洒。"},
+    {plantName:"牡丹", symptom:"叶片褐色轮纹斑，逐渐焦枯", reason:"叶斑病，多雨闷热", solve:"摘除病叶；代森锰锌800倍喷施，加强通风。"},
+    {plantName:"牡丹", symptom:"新芽发黑腐烂，根茎软腐", reason:"根腐病，积水排水差", solve:"控水；恶霉灵1000倍灌根，严重脱盆修根消毒。"},
+    {plantName:"向日葵", symptom:"叶片黄斑，慢慢枯萎", reason:"锈病，高湿环境", solve:"摘除病叶；三唑酮1200倍喷雾，间隔7天。"},
+    {plantName:"向日葵", symptom:"幼苗倒伏，茎基部发黑软烂", reason:"立枯病，盆土潮湿", solve:"减少浇水；恶霉灵灌根，增加通风。"},
+    {plantName:"康乃馨", symptom:"花瓣出现褐色水渍状斑点、霉层，逐渐腐烂", reason:"灰霉病，低温高湿、通风不良", solve:"摘除病花病叶加强通风；药物：腐霉利1000倍液喷洒，7天一次连用2次。"},
+    {plantName:"康乃馨", symptom:"叶片出现黑褐色圆形斑点，逐渐扩大焦枯", reason:"叶斑病，高湿闷热", solve:"摘除病叶；药物：代森锰锌800倍液整株喷洒，间隔7天连续2-3次。"},
+    {plantName:"雏菊", symptom:"叶片表面布满白色粉状霉层，植株长势变弱", reason:"白粉病，通风差、湿度高", solve:"摘除病叶加强通风；药物：醚菌酯1500倍液喷雾，7天一次。"},
+    {plantName:"雏菊", symptom:"嫩叶卷曲变形，背面有细小绿色虫体", reason:"蚜虫爆发", solve:"清水冲洗虫体；药物：吡虫啉2000倍液喷洒，一次即可。"},
+    {plantName:"芍药", symptom:"叶片出现红褐色圆形斑点，逐渐扩大焦枯", reason:"红斑病（芍药褐斑病），高湿多雨", solve:"摘除病叶秋季清理枯叶；药物：苯醚甲环唑1500倍液喷洒，7天一次连用2次。"},
+    {plantName:"芍药", symptom:"花蕾发黑腐烂，花瓣出现灰色霉层", reason:"灰霉病，花期低温高湿", solve:"摘除病蕾病花；药物：腐霉利1000倍液喷洒，加强通风。"},
+    {plantName:"龟背竹", symptom:"叶片出现褐色不规则大斑，逐渐干枯", reason:"叶斑病，通风差、浇水溅叶", solve:"摘除病叶，浇水避免淋叶；药物：代森锰锌800倍液喷洒。"},
+    {plantName:"龟背竹", symptom:"叶片发黄下垂，根部发黑腐烂", reason:"根腐病，积水闷根", solve:"脱盆修剪烂根，换透气土；药物：恶霉灵1000倍液灌根。"},
+    {plantName:"蝴蝶兰", symptom:"叶片出现水渍状透明斑，迅速腐烂发臭", reason:"软腐病，高温高湿、伤口感染", solve:"切除病部涂抹多菌灵粉末，停水通风；药物：农用链霉素3000倍液喷洒。"},
+    {plantName:"蝴蝶兰", symptom:"花瓣出现灰色霉斑，花朵提前凋谢", reason:"灰霉病，低温高湿", solve:"摘除病花；药物：腐霉利1000倍液喷雾，减少喷水。"},
+    {plantName:"君子兰", symptom:"叶片发黄下垂，根部变黑腐烂", reason:"烂根病，积水、植料不透气", solve:"脱盆剪烂根，多菌灵1000倍液浸根消毒，换透气植料重栽。"},
+    {plantName:"君子兰", symptom:"叶片出现褐色斑点，逐渐扩大", reason:"叶斑病，通风差", solve:"摘除病叶；药物：百菌清1000倍液喷洒，7天一次。"},
+    {plantName:"米兰", symptom:"叶片表面覆盖黑色煤烟状霉层", reason:"煤烟病，介壳虫分泌物诱发", solve:"先灭介壳虫：噻嗪酮1500倍液喷洒；再喷多菌灵800倍液除霉层。"},
+    {plantName:"米兰", symptom:"枝干附着褐色小虫壳，叶片发黄脱落", reason:"介壳虫虫害", solve:"人工刮除虫体；药物：蚧必治1000倍液喷洒，7天一次连用2次。"},
+    {plantName:"杜鹃花", symptom:"叶片出现褐色斑点，逐渐焦枯脱落", reason:"褐斑病，高湿通风差", solve:"摘除病叶；药物：代森锰锌800倍液喷洒，间隔7天。"},
+    {plantName:"杜鹃花", symptom:"新叶发黄发白，叶脉仍为绿色", reason:"黄化病，土壤碱化、缺铁", solve:"浇灌硫酸亚铁1000倍液每月一次，配合酸性营养液调酸。"},
+    {plantName:"山茶花", symptom:"叶片出现轮纹状褐色斑点，中央灰白", reason:"炭疽病，高湿多雨", solve:"摘除病叶；药物：咪鲜胺1500倍液整株喷洒，7天一次。"},
+    {plantName:"山茶花", symptom:"花苞发黑腐烂，未开先落", reason:"花腐病，低温高湿、通风差", solve:"摘除病苞；药物：腐霉利1000倍液喷洒，加强通风。"},
+    {plantName:"铃兰", symptom:"叶片和花朵出现灰色霉层、软腐", reason:"灰霉病，低温高湿", solve:"摘除病部；药物：腐霉利1000倍液喷洒，控水通风。"},
+    {plantName:"铃兰", symptom:"叶片出现褐色斑点，逐渐焦枯", reason:"褐斑病，通风不良", solve:"摘除病叶；药物：苯醚甲环唑1500倍液喷洒。"},
+    {plantName:"紫罗兰", symptom:"叶片布满白色粉状霉层，卷曲发黄", reason:"白粉病，通风差", solve:"摘除病叶；药物：醚菌酯1500倍液喷雾，7天一次。"},
+    {plantName:"紫罗兰", symptom:"幼苗茎基部变黑软腐，倒伏死亡", reason:"猝倒病，盆土过湿、低温", solve:"控制浇水，撒草木灰吸湿；药物：恶霉灵1000倍液灌根。"},
+    {plantName:"薰衣草", symptom:"根部发黑腐烂，叶片枯黄萎蔫", reason:"根腐病，盆土积水、排水差", solve:"控水，换排水良好的沙质土；药物：恶霉灵1000倍液灌根。"},
+    {plantName:"薰衣草", symptom:"枝叶出现灰色霉层，逐渐腐烂", reason:"灰霉病，闷热潮湿", solve:"摘除病枝，加强通风；药物：腐霉利1000倍液喷洒。"},
+
+];
+
+//每日一花素材池（复用花卉库）
+const dailyFlowerPool = flowerGuideData;
+
+//分类列表
+const categoryList = ["全部","草本","木本","多肉"];
+let currentCategory = "全部";
+
+// 根据花卉名称查询对应病害
+function getDiseaseByPlantName(plantName){
+    return diseaseData.filter(item=>item.plantName === plantName);
+}
+
+// ===================== 花卉图鉴：图片映射表 =====================
+const imageMap = {
+    "绿萝":"img/lvluo.jpg","玉露":"img/yulu.jpg","月季":"img/yueji.jpg","栀子花":"img/zhizihua.jpg","发财树":"img/facaishu.jpg","长寿花":"img/changshouhua.jpg","吊兰":"img/diaolan.jpg","虎皮兰":"img/hupilan.jpg","熊童子":"img/xiongtongzi.jpg","金钱树":"img/jinqianshu.jpg","茉莉":"img/moli.jpg","满天星":"img/mantianxing.jpg","郁金香":"img/yujinxiang.jpg","洋桔梗":"img/yangjiegeng.jpg","三角梅":"img/sanjiaomei.jpg","仙人球":"img/xianrenqiu.jpg","文竹":"img/wenzhu.jpg","太阳花":"img/taiyanghua.jpg","兰花":"img/lanhua.jpg","铜钱草":"img/tongqiancao.jpg","绣球":"img/xiuqiu.jpg","风信子":"img/fengxinzi.jpg","白掌（一帆风顺）":"img/baizhang.jpg","红掌":"img/hongzhang.jpg","小木槿":"img/xiaomujin.jpg","蓝雪花":"img/lanxuehua.jpg","蟹爪兰":"img/xiezhaolan.jpg","酢浆草":"img/cujiangcao.jpg","天竺葵":"img/tianzhukui.jpg","倒挂金钟":"img/daoguajinzhong.jpg","玫瑰":"img/meigui.jpg","牡丹":"img/mudan.jpg","向日葵":"img/xiangrikui.jpg","康乃馨":"img/kangnaixin.jpg","雏菊":"img/chuju.jpg","芍药":"img/shaoyao.jpg","龟背竹":"img/guibeizhu.jpg","蝴蝶兰":"img/hudielan.jpg","君子兰":"img/junzilan.jpg","米兰":"img/milan.jpg","杜鹃花":"img/dujuanhua.jpg","山茶花":"img/shanchahua.jpg","铃兰":"img/linglan.jpg","紫罗兰":"img/ziluolan.jpg","薰衣草":"img/xunyicao.jpg"
+};
+
+
+// ===================== 花卉外貌图鉴：外貌描写库 =====================
+const appearanceMap = {
+    "绿萝":"心形叶片翠绿油亮，叶面泛着自然的光泽，藤蔓柔韧细长、自然垂坠，节间生有气生根，整株四季常青，满盆垂挂时如绿色瀑布，充满生机。",
+    "玉露":"叶片肥厚饱满，呈莲座状层层排列，半透明的肉质叶如玉石般晶莹剔透，叶尖的透明‘窗’清晰可见，光线穿透时泛着温润柔和的光泽，是公认的‘会呼吸的宝石’。",
+    "月季":"花朵硕大饱满，花瓣层层卷曲如绸缎，红、粉、黄、白各色皆有，花香清雅，枝条直立带细刺，叶片深绿光亮，四季花开不断，是庭院与阳台的常驻主角。",
+    "栀子花":"花朵洁白如雪，花瓣厚实圆润、层层交叠，盛开时满枝素白，香气浓郁清甜、沁人心脾，叶片翠绿油亮，花叶相衬，典雅素净，是初夏最纯净的一抹白。",
+    "发财树":"主干粗壮挺拔，基部膨大如酒瓶，别致有力，掌状复叶五至七片向四周辐射展开，叶片翠绿光亮，树形端庄大气，摆在家中自带‘财气’的稳重感。",
+    "长寿花":"茎叶肥厚多汁，叶片深绿带波浪状齿边，花朵小而密集，聚伞花序簇拥成饱满的花球，红、粉、橙、黄色彩鲜艳，花期长达数月，是冬季最热闹的窗台花。",
+    "吊兰":"叶片细长柔软如剑，翠绿中夹着乳白条纹，叶丛中心抽生细长匍匐茎，茎端垂挂一簇簇小吊兰，随风轻摆、飘逸灵动，是居室中最随性的‘绿色垂帘’。",
+    "虎皮兰":"叶片挺拔直立如出鞘之剑，深绿底色上布满浅绿的横向斑纹，酷似虎皮，叶缘镶着金黄边线，一丛丛耸立，刚毅硬朗，自带护宅镇定的气场。",
+    "熊童子":"叶片肥厚圆润，密生一层白色绒毛，一对一对地排列，形似小熊的爪子，叶尖在光照充足时晕染出淡红，像涂了指甲油，呆萌可爱，是治愈系多肉的代表。",
+    "金钱树":"叶片肥厚革质、翠绿光亮，偶数羽状复叶对称排成串，如同一串串穿起的铜钱，叶轴挺拔有力，植株紧凑丰满，绿意中透着富足安稳的气息。",
+    "茉莉":"花朵小巧玲珑，花瓣洁白如凝脂，单瓣清秀、重瓣丰盈，香气清雅悠远、若有若无，叶片翠绿细小，花开时满枝白点，香气萦绕一室。",
+    "满天星":"花朵极小，五片花瓣洁白或淡粉，数百朵簇生成蓬松轻盈的花球，枝条纤细如丝，远看如夜空洒落的繁星，近看精致动人，温柔而浪漫。",
+    "郁金香":"花型如高脚酒杯，花瓣光滑挺立、色彩纯正，红、黄、紫、粉、白各色鲜亮，花茎笔直挺拔，叶片带蓝绿色调，优雅高贵，是春天的‘花中贵妇’。",
+    "洋桔梗":"花朵形似玫瑰却更轻盈薄透，花瓣边缘微微卷曲如波浪，粉、紫、白、淡绿色调清新淡雅，花茎细长直立，姿态柔美，是切花界的高级脸。",
+    "三角梅":"真正的花极小，藏在色彩鲜艳的苞片之中，玫红、粉、白、紫的苞片三片一组，薄如彩纸、明艳热烈，一开就是满树繁花，花期几乎全年。",
+    "仙人球":"球体圆润饱满，棱线清晰，通体密生金黄或洁白的针刺，像一只圆滚滚的刺猬，开花时花朵硕大惊艳，从针丛中绽放，刚与柔的极致对比。",
+    "文竹":"茎纤细如竹节，叶状枝细密如羽毛，层层叠叠、翠绿轻盈，整体姿态飘逸潇洒，自带清雅书卷气，是案头最诗意的绿植。",
+    "太阳花":"植株矮小匍匐，花朵单瓣或重瓣，黄、橙、红、粉色明艳亮眼，花瓣在阳光中尽情张开、夜晚悄然闭合，一盆能开成五彩斑斓的‘太阳小地毯’。",
+    "兰花":"花形奇特优雅，花瓣舒展如蝶翅或弯如钩月，色彩素雅，白、绿、紫色带细腻斑纹，香气清幽若隐，叶带修长挺拔，是花中君子的清高模样。",
+    "铜钱草":"叶片圆润如一枚枚铜钱，翠绿油亮，边缘带细锯齿，根茎匍匐丛生，密密麻麻铺满盆面，清新可爱，一盆翠绿的小圆叶，看着就喜气。",
+    "绣球":"数十朵四瓣小花紧紧簇拥成硕大的圆球，花球饱满圆润如绣球，花色随土壤酸碱在蓝、紫、粉、红之间变换，叶片宽大浓绿，是夏日花园的视觉焦点。",
+    "风信子":"总状花序紧密，数十朵小喇叭花簇成一棒状花穗，紫、蓝、粉、白色彩浓艳，鳞茎圆润饱满，一球一穗，香气浓烈馥郁，是早春最香的球根花。",
+    "白掌（一帆风顺）":"洁白如贝壳的佛焰苞高高扬起，如一片扬起的小白帆，中央托着黄白色的肉穗花序，叶色浓绿有光泽，株型清秀挺拔，寓意一路顺风。",
+    "红掌":"红色革质苞片光亮如蜡、鲜艳夺目，中央挺立一根金黄色的肉穗花序，像一只燃着烛芯的红烛，叶片心形深绿，花叶对比强烈，喜庆大气。",
+    "小木槿":"花朵小巧精致，五片薄纱般的粉色花瓣，花心泛着深红，枝条纤细，一棵小树能同时挂满几十朵花，轻风一吹，满枝粉色颤动。",
+    "蓝雪花":"花朵五瓣，淡蓝色清新淡雅，如同天空揉碎的颜色，数十朵簇成球形花序，枝条柔软、自然下垂，叶片翠绿，是夏天少有的清凉蓝调。",
+    "蟹爪兰":"茎节扁平如螃蟹的爪子，边缘带细细锯齿，一节一节相连、自然垂吊，花朵从茎节顶端绽放，红、粉、紫垂挂枝头，形态奇特又喜庆。",
+    "酢浆草":"三片心形小叶组成复叶，小巧精致，像三叶草，花朵五瓣，黄、粉、白、紫色娇俏清丽，白天迎着阳光开放，傍晚悄悄闭合，灵动可爱。",
+    "天竺葵":"伞形花序，几十朵小花簇成圆圆的花球，红、粉、白、橙色彩饱满，叶片圆形带深色马蹄纹，边缘波浪状，全株散发独特的草木香气。",
+    "倒挂金钟":"花朵向下垂挂，如一盏盏精致的小灯笼，萼片与花瓣双层配色，红萼白瓣、紫萼粉瓣，花蕊从中轻轻探出，玲珑剔透，精巧别致。",
+    "玫瑰":"花朵层叠繁复，花瓣厚实如丝绒，红得热烈、粉得温柔，香气馥郁醇厚，枝干密生尖刺，叶片深绿带细褶皱，是爱与浪漫最经典的模样。",
+    "牡丹":"花中之王，花朵硕大如碗，花瓣层层叠叠、雍容华贵，红、粉、白、紫、黄色泽绚丽，叶片二回三出、宽大舒展，盛开时尽显国色天香。",
+    "向日葵":"花盘硕大如金色太阳，金黄舌状花瓣围绕深褐色的花心一圈圈铺开，植株高大挺拔，茎干粗壮，叶片心形宽大，永远昂首向着太阳。",
+    "康乃馨":"花瓣边缘呈细锯齿状，层层叠叠如裙摆，粉、红、白、黄色温润柔和，花香清甜，花茎细长挺直，叶片细长对生，是母亲节最温柔的问候。",
+    "雏菊":"花朵小巧圆润，细长的花瓣洁白或淡粉，簇拥着金黄色的圆盘花心，成片开放在绿茵上如繁星点点，清新纯真，带着孩子气的可爱。",
+    "芍药":"花朵硕大如牡丹却更轻盈柔美，花瓣丝质薄透、层层舒展，粉、白、红、紫色淡雅温润，初夏盛开时绰约多姿，是‘花中丞相’的风流模样。",
+    "龟背竹":"叶片巨大如芭蕉扇，深绿革质，叶面上自然开裂出羽状裂痕，如龟背花纹般独特，茎干粗壮，垂下褐色的气生根，满身热带雨林的野性之美。",
+    "蝴蝶兰":"花瓣宽大如蝴蝶的翅膀，白、粉、紫、黄各色带细碎斑点，成串开放在拱形花茎上，远远看去如一群蝴蝶栖息枝头，花姿优雅，气生根粗壮银白。",
+    "君子兰":"叶片宽厚挺拔，深绿光亮，左右对称排列如一把展开的折扇，花朵橙红明艳、成簇开放，端庄大气，是花中谦谦君子。",
+    "米兰":"花朵极小，如一颗颗金黄色的小米粒，密密麻麻簇生枝头，香气清幽似兰、弥久不散，枝叶茂密，小叶翠绿圆润，低调而芬芳。",
+    "杜鹃花":"花朵漏斗状，红、粉、白、紫色热烈奔放，成片开放时如火如荼、满山红遍，叶片椭圆形、密生细绒毛，是‘花中西施’的烂漫本色。",
+    "山茶花":"花朵硕大端庄，花瓣层层叠叠如绸缎般润泽，红、粉、白色艳丽而不俗，叶片革质油亮、边缘带细齿，冬春之际凌寒绽放，高雅坚韧。",
+    "铃兰":"花如一串串白色的小铃铛，垂挂在细长弯垂的花茎上，香气清甜，叶片翠绿宽大，花朵小巧玲珑，是林间最纯净的‘五月铃’。",
+    "紫罗兰":"花朵小巧，四片花瓣排成十字形，紫色淡雅或粉白清丽，总状花序层层开放，香气温柔甜润，叶片深绿圆润，是春日窗台的浪漫点缀。",
+    "薰衣草":"穗状花序上一朵朵淡紫色的小花密集排列成串，像紫色的麦浪，叶片灰绿色、细长如针，全株散发宁静安神的草木清香，成片时是漫山遍野的紫色海洋。"
+};
+// ===================== 模块6：花卉图鉴渲染 =====================
+function renderAlbum() {
+    const wrap = document.getElementById("albumList");
+    if (!wrap) return;
+    let html = `<div class="disease-sub-title">🖼️ 花卉图鉴（共 ${flowerGuideData.length} 种），点击卡片欣赏花朵外貌</div><div class="album-grid">`;
+    flowerGuideData.forEach(item => {
+        const imgSrc = imageMap[item.name] || "";
+        const imgHtml = imgSrc
+            ? `<img src="${imgSrc}" alt="${item.name}" loading="lazy" onerror="this.style.display='none'">`
+            : `<div style="height:120px;display:flex;align-items:center;justify-content:center;color:#7a9480;font-size:40px;">🌷</div>`;
+        html += `
+        <div class="album-card" onclick="openAppearance('${item.name}')">
+            ${imgSrc ? `<div class="album-img-wrap" onclick="event.stopPropagation(); openImgViewer('${imgSrc}', '${item.name}')">${imgHtml}</div>` : imgHtml}
+            <p>${item.name}</p>
+        </div>`;
+    });
+    html += `</div>`;
+    wrap.innerHTML = html;
+}
+// ===================== 本地存储工具 =====================
+function getStorage(key) {
+    const data = localStorage.getItem(key);
+    try { return data ? JSON.parse(data) : []; } catch (e) { return []; }
+}
+function setStorage(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+}
+
+// ===================== 日期工具（禁止未来日期） =====================
+function getNowDateStr() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+}
+
+// ===================== 页面切换 =====================
+function openSubPage(pageId) {
+    document.getElementById("homePage").style.display = "none";
+    document.querySelectorAll('.sub-page').forEach(el => el.classList.remove('active'));
+    document.getElementById(pageId).classList.add("active");
+    if (pageId === "guide") renderGuide();
+    if (pageId === "album") renderAlbum();
+    if (pageId === "myplant") renderMyPlant();
+}
+function backHome() {
+    document.getElementById("homePage").style.display = "grid";
+    document.querySelectorAll('.sub-page').forEach(el => el.classList.remove('active'));
+}
+
+// ===================== 弹窗控制 =====================
+function openModal() { document.getElementById("plantModal").classList.add("show"); }
+function closeModal() { document.getElementById("plantModal").classList.remove("show"); }
+function closeModal() { document.getElementById("plantModal").classList.remove("show"); }
+
+// ===================== 图片放大查看 =====================
+function openImgViewer(src, name) {
+    const img = document.getElementById("imgViewerPic");
+    if (!src) return;
+    img.src = src;
+    img.alt = name || "花卉大图";
+    document.getElementById("imgViewerName").textContent = name || "";
+    document.getElementById("imgViewer").classList.add("show");
+}
+function closeImgViewer() {
+    document.getElementById("imgViewer").classList.remove("show");
+    document.getElementById("imgViewerPic").src = "";
+}
+
+function closeAppearance() {
+    document.getElementById("appearanceModal").classList.remove("show");
+}
+
+// ===================== 花卉外貌图鉴弹窗 =====================
+function openAppearance(name) {
+    const plant = flowerGuideData.find(p => p.name === name);
+    if (!plant) return;
+    const imgSrc = imageMap[name] || "";
+    const desc = appearanceMap[name] || "暂无外貌描述，敬请期待。";
+    const imgHtml = imgSrc
+        ? `<img class="appearance-img" src="${imgSrc}" alt="${name}" title="点击放大" onclick="openImgViewer('${imgSrc}', '${name}')">`
+        : "";
+    document.getElementById("appearanceContent").innerHTML = `
+        ${imgHtml}
+        <div class="appearance-name">${name}</div>
+        <div class="appearance-desc">${desc}</div>
+        <div class="appearance-tip">💡 点击上方大图可再次放大查看</div>
+    `;
+    document.getElementById("appearanceModal").classList.add("show");
+}
+
+document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") closeImgViewer();
+});
+
+function openSearchModal() { document.getElementById("searchModal").classList.add("show"); }
+function closeSearchModal() {
+    document.getElementById("searchModal").classList.remove("show");
+    document.getElementById("searchInput").value = "";
+}
+
+// ===================== 模块1：每日一花渲染 =====================
+function renderDailyFlower() {
+    const random = dailyFlowerPool[Math.floor(Math.random() * dailyFlowerPool.length)];
+    document.getElementById("dailyFlowerBox").innerHTML = `
+        <p style="font-size:17px;font-weight:bold;color:#2f5d3a;">${random.name}</p>
+        <div class="knowledge-block"><strong>💐 花语</strong>：${random.flowerLanguage}</div>
+        <div class="knowledge-block"><strong>💡 花卉冷知识</strong>：${random.coldKnowledge}</div>
+        <p style="font-size:13px;color:#556b59;"><strong>🌱 基础养护要点</strong>：${random.tip}</p>
+    `;
+}
+
+// ===================== 模块2：全局搜索（修复版：首页即可用，弹出结果浮层） =====================
+function getSearchResult(keyword) {
+    const kw = keyword.toLowerCase().trim();
+    if (!kw) return { guide: [], disease: [] };
+    const guide = flowerGuideData.filter(i =>
+        i.name.toLowerCase().includes(kw) ||
+        i.tip.toLowerCase().includes(kw) ||
+        i.flowerLanguage.toLowerCase().includes(kw) ||
+        i.category.toLowerCase().includes(kw)
+    );
+    const disease = diseaseData.filter(i =>
+        i.plantName.toLowerCase().includes(kw) ||
+        i.symptom.toLowerCase().includes(kw) ||
+        i.solve.toLowerCase().includes(kw)
+    );
+    return { guide: guide, disease: disease };
+}
+
+//渲染搜索结果浮层
+function renderSearchResult(keyword) {
+    const res = getSearchResult(keyword);
+    const listBox = document.getElementById("searchResultList");
+    //病害匹配涉及的花卉（去重，未在攻略匹配中出现过的）
+    const diseasePlants = [];
+    res.disease.forEach(d => {
+        if (!diseasePlants.includes(d.plantName)) diseasePlants.push(d.plantName);
+    });
+    const extraPlants = diseasePlants.filter(p => !res.guide.some(g => g.name === p));
+
+    document.getElementById("searchModalTitle").textContent =
+        "搜索结果（花卉" + res.guide.length + "条 / 病害" + res.disease.length + "条）";
+
+    let html = "";
+    if (res.guide.length === 0 && extraPlants.length === 0) {
+        html = `<div class="empty-tip">没有找到与「${keyword}」相关的内容<br>试试输入：月季、绿萝、黄叶、黑斑...</div>`;
+    }
+    res.guide.forEach(item => {
+        html += `
+        <div class="search-result-item" onclick="openPlantDetail('${item.name}')">
+            <h4>${item.name} <span class="category-tag">${item.category}</span><span class="match-type">攻略匹配</span></h4>
+            <p>${item.tip}</p>
+        </div>`;
+    });
+    extraPlants.forEach(p => {
+        const item = flowerGuideData.find(f => f.name === p);
+        if (item) {
+            html += `
+            <div class="search-result-item" onclick="openPlantDetail('${item.name}')">
+                <h4>${item.name} <span class="category-tag">${item.category}</span><span class="match-type">病害匹配</span></h4>
+                <p>${item.tip}</p>
+            </div>`;
+        }
+    });
+    listBox.innerHTML = html;
+}
+
+//搜索框监听：输入即弹出搜索结果浮层（初始首页直接可用）
+document.getElementById("searchInput").addEventListener("input", function () {
+    const kw = this.value.trim();
+    if (kw === "") {
+        document.getElementById("searchModal").classList.remove("show");
+        return;
+    }
+    renderSearchResult(kw);
+    openSearchModal();
+});
+
+// ===================== 模块3：植物攻略库 =====================
+function renderCategoryFilter() {
+    const filterWrap = document.getElementById("categoryFilter");
+    let html = "";
+    categoryList.forEach(cat => {
+        const active = cat === currentCategory ? "active" : "";
+        html += `<button class="${active}" onclick="changeCategory('${cat}')">${cat}</button>`;
+    });
+    filterWrap.innerHTML = html;
+}
+function changeCategory(catName) {
+    currentCategory = catName;
+    renderCategoryFilter();
+    renderGuide();
+}
+function renderGuide(searchList = flowerGuideData) {
+    let list = searchList;
+    if (currentCategory !== "全部") {
+        list = list.filter(item => item.category === currentCategory);
+    }
+    const wrap = document.getElementById("guideList");
+    if (list.length === 0) {
+        wrap.innerHTML = `<div class="empty-tip">没有找到匹配的花卉攻略</div>`;
+        return;
+    }
+    let html = `<div class="disease-sub-title">🌿 攻略库已收录 ${list.length} 种花卉，点卡片查看完整攻略 + 专属病虫害用药</div>`;
+    list.forEach(item => {
+        const imgSrc = imageMap[item.name] || "";
+        const imgHtml = imgSrc ? `<img class="gc-img" src="${imgSrc}" alt="${item.name}" onerror="this.style.display='none'">` : "";
+        const dCount = getDiseaseByPlantName(item.name).length;
+        const dBadge = dCount > 0 ? `<span class="disease-count-badge">🌡️ 病害 ${dCount} 条</span>` : "";
+        html += `
+        <div class="card guide-card" onclick="openPlantDetail('${item.name}')">
+            ${imgHtml}
+            <div class="gc-main">
+                <h4>${item.name} <span class="category-tag">${item.category}</span>${dBadge}</h4>
+                <p>☀光照：${item.light.substring(0, 34)}...</p>
+                <p>💧浇水：${item.water.substring(0, 34)}...</p>
+                <p>📌贴士：${item.tip}</p>
+            </div>
+        </div>`;
+    });
+    wrap.innerHTML = html;
+}
+// ===================== 花卉详情弹窗 =====================
+function openPlantDetail(plantName) {
+    const plant = flowerGuideData.find(p => p.name === plantName);
+    if (!plant) return;
+    const relatedDisease = getDiseaseByPlantName(plantName);
+    let diseaseHtml = "";
+    if (relatedDisease.length > 0) {
+        relatedDisease.forEach(d => {
+            diseaseHtml += `
+            <div class="card" style="cursor:default;">
+                <span class="sick-tag">病害诊疗（含用药）</span>
+                <p><b>症状：</b>${d.symptom}</p>
+                <p><b>诱因：</b>${d.reason}</p>
+                <p><b>✅解决方案+用药：</b>${d.solve}</p>
+            </div>`;
+        });
+    } else {
+        diseaseHtml = `<p style="color:#7a9480;">暂无该花卉相关病害记录</p>`;
+    }
+    document.getElementById("modalContent").innerHTML = `
+        <h3 style="color:#2f5d3a;margin-bottom:12px;">${plant.name} <span class="category-tag">${plant.category}</span></h3>
+        <div class="knowledge-block"><strong>💐 完整花语</strong>：${plant.flowerLanguage}</div>
+        <div class="knowledge-block"><strong>💡 花卉冷知识</strong>：${plant.coldKnowledge}</div>
+        <div class="card" style="cursor:default;">
+            <p><b>☀光照要求</b>：${plant.light}</p>
+            <p><b>💧浇水方法</b>：${plant.water}</p>
+            <p><b>🧪施肥方案</b>：${plant.fertilizer}</p>
+            <p><b>📌养护核心贴士</b>：${plant.tip}</p>
+        </div>
+        <h4 style="color:#2f5d3a;margin:14px 0 10px;">🌡️ 该花卉专属病虫害诊疗（带具体药品）</h4>
+        ${diseaseHtml}
+    `;
+    openModal();
+}
+
+// ===================== 模块4：种植打卡（修复未来日期BUG） =====================
+function addMyPlant() {
+    const name = document.getElementById("addPlantName").value.trim();
+    const date = document.getElementById("addPlantDate").value;
+    const nowDate = getNowDateStr();
+    if (!name || !date) {
+        alert("请完整填写花卉名称和种下日期！");
+        return;
+    }
+    if (date > nowDate) {
+        alert("❌禁止选择未来日期！请选择今日或过往日期");
+        return;
+    }
+    const myPlants = getStorage("myPlants");
+    myPlants.push({ name: name, startDate: date, id: Date.now() });
+    setStorage("myPlants", myPlants);
+    document.getElementById("addPlantName").value = "";
+    document.getElementById("addPlantDate").value = "";
+    renderMyPlant();
+    alert("✅种植记录添加成功！种植天数自动更新");
+}
+function getPlantDays(startDateStr) {
+    const start = new Date(startDateStr);
+    const now = new Date();
+    const diffTime = now.getTime() - start.getTime();
+    if (diffTime <= 0) return 0;
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
+function renderMyPlant() {
+    const myPlants = getStorage("myPlants");
+    const wrap = document.getElementById("myPlantList");
+    if (myPlants.length === 0) {
+        wrap.innerHTML = `<div class="empty-tip">暂无种植记录，添加你的第一盆花卉吧</div>`;
+        return;
+    }
+    let html = "";
+    myPlants.forEach(item => {
+        const day = getPlantDays(item.startDate);
+        html += `
+        <div class="card" style="cursor:default;">
+            <h4>${item.name}</h4>
+            <span class="plant-day-tag">已种植 ${day} 天</span>
+            <p>📅种下日期：${item.startDate}</p>
+            <button class="btn btn-danger" style="margin-top:8px;" onclick="delPlant(${item.id})">删除这条记录</button>
+        </div>`;
+    });
+    wrap.innerHTML = html;
+}
+function delPlant(id) {
+    let myPlants = getStorage("myPlants");
+    myPlants = myPlants.filter(p => p.id !== id);
+    setStorage("myPlants", myPlants);
+    renderMyPlant();
+}
+
+// =====================（病虫害内容已整合进植物攻略库详情弹窗） =====================
+
+// ===================== 页面初始化 =====================
+window.onload = function () {
+    renderDailyFlower();
+    renderCategoryFilter();
+    renderGuide();
+    renderAlbum();
+    renderMyPlant();
+    document.getElementById("addPlantDate").max = getNowDateStr();
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能花卉养殖系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft Yahei", sans-serif;
+        }
+        body {
+            background-color: #fbfdf8;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20,50 C30,30 40,70 50,50 C60,30 70,70 80,50' stroke='%23dcecd8' stroke-width='1.4' fill='none' opacity='0.45'/%3E%3Cpath d='M0,20 C10,10 20,30 30,20 C40,10 50,30 60,20' stroke='%23dcecd8' stroke-width='1.1' fill='none' opacity='0.35'/%3E%3Cpath d='M0,80 C10,70 20,90 30,80 C40,70 50,90 60,80' stroke='%23dcecd8' stroke-width='1.1' fill='none' opacity='0.35'/%3E%3C/svg%3E");
+            color: #333;
+            min-height: 100vh;
+        }
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 28px 18px 60px;
+        }
+        /* ===== 顶部标题 ===== */
+        .top-bar {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+        .top-bar h1 {
+            color: #2f5d3a;
+            font-size: 30px;
+            letter-spacing: 2px;
+        }
+        .top-bar p {
+            color: #6b8a70;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+        /* ===== 每日一花 ===== */
+        .daily-flower {
+            background: rgba(255,255,255,0.92);
+            border-radius: 16px;
+            padding: 20px 22px;
+            margin-bottom: 20px;
+            border-left: 6px solid #72b084;
+            box-shadow: 0 3px 12px rgba(74,124,89,0.12);
+        }
+        .daily-flower h3 {
+            color: #4a7c59;
+            margin-bottom: 10px;
+            font-size: 17px;
+        }
+        .knowledge-block {
+            background: #f4f9f5;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #44554a;
+        }
+        /* ===== 搜索框 ===== */
+        .search-area {
+            margin-bottom: 20px;
+        }
+        .search-area input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #c9ddcd;
+            border-radius: 14px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.95);
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-area input:focus {
+            border-color: #72b084;
+            box-shadow: 0 0 0 4px rgba(114,176,132,0.18);
+        }
+        .search-tip {
+            font-size: 12px;
+            color: #7a9480;
+            margin-top: 6px;
+            text-align: center;
+        }
+        /* ===== 首页三大模块 ===== */
+        .home-module-wrap {
+            display: grid;
+            gap: 16px;
+        }
+        .home-card {
+            background: rgba(255,255,255,0.92);
+            border-radius: 16px;
+            padding: 24px 22px;
+            cursor: pointer;
+            transition: 0.25s;
+            border: 1px solid #e5f0e7;
+            box-shadow: 0 2px 10px rgba(74,124,89,0.08);
+        }
+        .home-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(74,124,89,0.18);
+        }
+        .home-card h2 {
+            color: #2f5d3a;
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+        .home-card p {
+            color: #647c68;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        /* ===== 子页面 ===== */
+        .sub-page {
+            display: none;
+        }
+        .sub-page.active {
+            display: block;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+            padding: 9px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #e8f1eb;
+            color: #3a6b47;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            background: #d9e9df;
+        }
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .filter-bar button {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1px solid #4a7c59;
+            background: #fff;
+            color: #4a7c59;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .filter-bar button.active {
+            background: #4a7c59;
+            color: #fff;
+        }
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: rgba(255,255,255,0.93);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 14px;
+            border: 1px solid #e5f0e7;
+            box-shadow: 0 1px 6px rgba(74,124,89,0.06);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 14px rgba(74,124,89,0.15);
+        }
+        .card h4 {
+            color: #2f5d3a;
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+        .card p {
+            color: #556b59;
+            line-height: 1.6;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #4a7c59;
+            color: #fff;
+        }
+        .btn-danger {
+            background: #c95b5b;
+            color: #fff;
+        }
+        .btn-link {
+            background: transparent;
+            color: #4a7c59;
+            text-decoration: underline;
+            padding: 4px 0;
+        }
+        .input-item {
+            margin: 12px 0;
+        }
+        .input-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #44554a;
+        }
+        .input-item input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d9e7de;
+            border-radius: 9px;
+            font-size: 14px;
+            outline: none;
+        }
+        .plant-day-tag {
+            display: inline-block;
+            background: #72b084;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 13px;
+        }
+        .sick-tag {
+            display: inline-block;
+            background: #d48346;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .category-tag {
+            display: inline-block;
+            background: #648ca6;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+        }
+        .empty-tip {
+            text-align: center;
+            padding: 36px 16px;
+            color: #7a9480;
+            font-size: 15px;
+        }
+        /* ===== 弹窗通用 ===== */
+        .modal-wrap {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(30,50,35,0.5);
+            display: none;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        .modal-wrap.show {
+            display: flex;
+        }
+        .modal {
+            width: 100%;
+            max-width: 680px;
+            background: #fff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            animation: fadeUp 0.25s ease;
+        }
+        @keyframes fadeUp {
+            from { transform: translateY(16px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eef4ef;
+        }
+        .modal-header h3 {
+            color: #2f5d3a;
+            font-size: 17px;
+        }
+        .modal-close {
+            cursor: pointer;
+            color: #7a9480;
+            font-size: 15px;
+            background: #f0f5f1;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+        }
+        .modal-close:hover {
+            background: #e2ece5;
+            color: #2f5d3a;
+        }
+        .search-result-item {
+            cursor: pointer;
+            padding: 14px 16px;
+            border: 1px solid #e5f0e7;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+            background: #fcfefc;
+        }
+        .search-result-item:hover {
+            border-color: #72b084;
+            box-shadow: 0 3px 10px rgba(74,124,89,0.14);
+        }
+        .search-result-item h4 {
+            color: #2f5d3a;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .search-result-item p {
+            color: #6b8a70;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .search-result-item .match-type {
+            font-size: 12px;
+            color: #d48346;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+
+        <!-- 顶部标题 -->
+        <div class="top-bar">
+            <h1>🌱 智能花卉养殖系统</h1>
+            <p>养花攻略 · 种植打卡 · 病虫害防治</p>
+        </div>
+
+        <!-- 每日一花（首页） -->
+        <div class="daily-flower">
+            <h3>🌼 今日随机花卉推荐</h3>
+            <div id="dailyFlowerBox"></div>
+        </div>
+
+        <!-- 全局搜索框（初始首页即可用） -->
+        <div class="search-area">
+            <input id="searchInput" type="text" placeholder="🔍 输入花卉名称/症状关键词，如：月季、黄叶、黑斑..." autocomplete="off">
+            <div class="search-tip">输入关键词即可在首页弹出搜索结果，点击结果可查看完整攻略</div>
+        </div>
+
+        <!-- 首页三大模块入口 -->
+        <div class="home-module-wrap" id="homePage">
+            <div class="home-card" onclick="openSubPage('guide')">
+                <h2>🌿 植物攻略库</h2>
+                <p>浏览全部花卉养护知识、花语、冷知识，查看每款花卉专属病虫害防治方案。</p>
+            </div>
+            <div class="home-card" onclick="openSubPage('myplant')">
+                <h2>📝 种植打卡</h2>
+                <p>添加你的盆栽记录，自动计算种植天数，管理养花清单，记录成长历程。</p>
+            </div>
+            <div class="home-card" onclick="openSubPage('disease')">
+                <h2>🩺 病虫防害</h2>
+                <p>查询各类花卉病害症状、诱因，配套药剂、稀释比例和完整处理方案。</p>
+            </div>
+        </div>
+
+        <!-- 子页面1：植物攻略库 -->
+        <div class="sub-page" id="guide">
+            <button class="back-btn" onclick="backHome()">← 返回首页</button>
+            <div class="filter-bar" id="categoryFilter"></div>
+            <div id="guideList"></div>
+        </div>
+
+        <!-- 子页面2：种植打卡 -->
+        <div class="sub-page" id="myplant">
+            <button class="back-btn" onclick="backHome()">← 返回首页</button>
+            <div class="card" style="cursor:default;">
+                <h4>➕ 添加新种植花卉</h4>
+                <div class="input-item">
+                    <label>花卉名称</label>
+                    <input id="addPlantName" placeholder="如：绿萝">
+                </div>
+                <div class="input-item">
+                    <label>种下日期（不可选择未来日期）</label>
+                    <input id="addPlantDate" type="date">
+                </div>
+                <button class="btn btn-primary" onclick="addMyPlant()">保存种植记录</button>
+            </div>
+            <div id="myPlantList"></div>
+        </div>
+
+        <!-- 子页面3：病虫防害 -->
+        <div class="sub-page" id="disease">
+            <button class="back-btn" onclick="backHome()">← 返回首页</button>
+            <div id="diseaseList"></div>
+        </div>
+
+    </div>
+
+    <!-- 搜索结果弹窗（初始首页输入即弹出） -->
+    <div class="modal-wrap" id="searchModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="searchModalTitle">搜索结果</h3>
+                <button class="modal-close" onclick="closeSearchModal()">✕ 返回首页</button>
+            </div>
+            <div id="searchResultList"></div>
+        </div>
+    </div>
+
+    <!-- 花卉详情弹窗 -->
+    <div class="modal-wrap" id="plantModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>花卉详情</h3>
+                <button class="modal-close" onclick="closeModal()">✕ 关闭</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+<script>
+// ===================== 花卉数据库（含养护、花语、冷知识） =====================
+const flowerGuideData = [
+    {name:"绿萝", category:"草本", light:"喜明亮散射光，禁止强光直射，耐阴性强，适合室内客厅、书房", water:"见干见湿，春夏保持盆土微润，秋冬控水，避免积水烂根", fertilizer:"春秋每15天一次稀薄氮磷钾通用液肥，冬季停肥", tip:"可土培可水培，通风不良易黄叶黑斑，长期阴暗会徒长", flowerLanguage:"绿萝的花语是‘守望幸福、坚韧善良、生生不息’。它没有艳丽的花朵，却常年翠绿盎然，默默装点生活、净化空气，代表着平凡生活里长久的陪伴与温柔，寓意无论生活平淡与否，始终保持蓬勃向上的生命力，守护身边人的幸福与安稳。", coldKnowledge:"绿萝是公认的‘天然空气净化器’，可吸附甲醛、苯、三氯乙烯等有害气体；原产所罗门群岛热带雨林；民间素有‘一盆绿萝旺全屋’的说法；藤蔓无限攀爬，象征生生不息、步步高升。"},
+    {name:"玉露", category:"多肉", light:"喜柔和散射光，惧怕暴晒，暴晒会叶片灰化干瘪失去通透感", water:"极度耐旱，干透浇透，夏季高温休眠停水，冬季低温控水", fertilizer:"仅春秋施多肉专用缓释肥，浓度极低，夏冬停肥", tip:"叶片通透饱满为最佳状态，闷热积水不通风是化水烂根主因", flowerLanguage:"玉露的花语是‘晶莹剔透、冰清玉洁、纯净美好’。叶片饱满通透、温润如玉，象征干净纯粹的内心、不世俗的品格，寓意生活清澈明朗、岁岁安然。", coldKnowledge:"玉露属阿福花科多肉，非传统景天科；通透感由光照、湿度、温差共同决定，闷养可更饱满透亮；生长极慢，属‘慢热型’绿植，养护越久颜值越高。"},
+    {name:"月季", category:"木本", light:"喜全日照，每日6小时以上直射阳光，缺光徒长不开花", water:"见干见湿，花期保持微湿，避免积水，雨后排水通风", fertilizer:"花期前磷酸二氢钾促花，生长期通用复合肥，花后修剪补肥", tip:"被称为‘药罐子’，高湿不通风极易爆发病虫害，需勤通风勤修剪", flowerLanguage:"月季的花语是‘等待有希望的希望、幸福、光荣、美艳长新’。月季月月开花、四季不断，象征生生不息的希望与永不落幕的美好，代表执着的等待与坚定的热爱，寓意生活常开不败、岁岁欢愉。", coldKnowledge:"月季是中国十大名花之一，被誉为‘花中皇后’；与玫瑰相似但叶片光滑、刺少、花期超长；全世界月季品种超三万种，颜色形态各不相同。"},
+    {name:"栀子花", category:"木本", light:"喜明亮散射光，怕强光暴晒，半阴环境即可旺盛生长", water:"喜湿润喜酸性，保持微湿，空气干燥需经常喷雾增湿", fertilizer:"生长期定期浇灌硫酸亚铁调酸，花期前补磷钾肥", tip:"土壤碱化、缺水、暴晒是黄叶掉苞的核心原因", flowerLanguage:"栀子花的花语是‘永恒的爱、一生守候、喜悦纯洁’。洁白无瑕、香气清雅绵长，代表纯粹干净的爱意与不离不弃的守候，象征真挚专一的感情，寓意美好纯粹、岁岁安然。", coldKnowledge:"栀子花是典型酸性花卉，北方养护必须定期调酸，否则极易黄叶；花香淡雅可制花茶香囊；花期在初夏，是夏天的代表性花卉；民间视为吉祥花。"},
+    {name:"发财树", category:"木本", light:"耐阴喜散光，严禁暴晒，适合室内办公室客厅", water:"极度怕涝，宁干勿湿，盆土干透再浇，积水必烂根", fertilizer:"春夏生长期薄肥勤施，秋冬停肥", tip:"根系极弱，最怕积水、低温、闷热，少浇水是养护核心", flowerLanguage:"发财树的花语是‘招财进宝、财源广进、平安顺遂、步步高升’。作为经典吉祥绿植，象征财富、好运与安稳，寓意家业兴旺、财源滚滚、生活富足顺遂。", coldKnowledge:"发财树原名瓜栗，并非天生招财，是民间赋予的吉祥寓意；树干膨大可储水储养分，所以极度耐旱；室内摆放可净化空气、舒缓视觉疲劳。"},
+    {name:"长寿花", category:"多肉", light:"喜充足散射光，光照足开花密集，缺光徒长不开花", water:"肉质叶片储水强，干透浇水，忌积水", fertilizer:"秋季增施磷钾肥促花苞，冬季花期停肥", tip:"短日照植物，秋冬开花，花期超长可达半年", flowerLanguage:"长寿花的花语是‘福寿安康、大吉大利、长命百岁、喜乐无忧’。花期超长、生命力旺盛，象征健康长寿、福气满满，是寓意极佳的居家吉祥花卉。", coldKnowledge:"长寿花属景天科多肉，叶片肥厚储水；花期从12月持续到次年5月，是冬季主力年宵花；扦插成活率极高，随手插枝就能活。"},
+    {name:"吊兰", category:"草本", light:"喜温暖散射光，耐阴，适合室内悬挂养护，怕暴晒", water:"生长期保持微湿，冬季控水，避免积水烂根", fertilizer:"每月一次稀薄液肥，观叶肥为主", tip:"抽藤能力强，垂吊观赏性强，净化空气能力优秀", flowerLanguage:"吊兰的花语是‘无奈但又给人希望、朴实、纯洁、宁静’。它不争不抢、静静生长，代表平淡安稳的生活态度，寓意岁月静好、平安无忧。", coldKnowledge:"吊兰被称为‘空气卫士’，净化甲醛能力极强；匍匐茎会抽出小吊兰可分株繁殖；养护极其粗放，新手零难度；四季常绿，是经典居家绿植。"},
+    {name:"虎皮兰", category:"草本", light:"耐阴耐晒，适应性极强，散光养护最佳", water:"极度耐旱，1-2周浇一次即可，宁干勿湿", fertilizer:"春夏少量复合肥，秋冬停肥", tip:"夜间释放氧气，适合卧室摆放", flowerLanguage:"虎皮兰花语：‘坚定、刚毅、不屈不挠、守护平安’。叶片挺拔直立、坚韧有力，象征坚韧不拔的品格，寓意家宅安稳、挡煞纳福。", coldKnowledge:"虎皮兰是少数夜间释放氧气的绿植，卧室养护有益睡眠；耐贫瘠、耐干旱、耐阴，几乎养不死；叶片纹路酷似虎皮故而得名。"},
+    {name:"熊童子", category:"多肉", light:"明亮散射光，光照足叶片肥厚变红，缺光徒长", water:"干透浇透，夏季休眠控水，冬季低温少水", fertilizer:"春秋多肉专用肥薄施", tip:"叶片毛茸茸酷似小熊爪，高温高湿易掉叶烂叶", flowerLanguage:"熊童子花语：‘温柔、可爱、治愈、陪伴’。外形软萌可爱，自带治愈感，象征温暖陪伴、生活可爱温柔。", coldKnowledge:"熊童子是景天科多肉，叶片绒毛可锁水；光照温差足叶尖会变红，像涂了指甲的小熊爪；休眠期掉叶属正常；生长缓慢，适合桌面小盆栽。"},
+    {name:"金钱树", category:"草本", light:"喜散光耐阴，严禁暴晒", water:"肉质根茎储水极强，极少浇水，积水烂根必死", fertilizer:"春夏薄肥，秋冬停肥", tip:"叶片成对生长，寓意圆满招财", flowerLanguage:"金钱树花语：‘招财纳福、富贵圆满、兴旺顺遂’。叶片翠绿成对，象征团圆美满、财源不断。", coldKnowledge:"金钱树学名雪铁芋，无主茎、地下块根储水；极少开花，开花被视为吉兆；耐阴好养，适合办公室居家。"},
+    {name:"茉莉", category:"木本", light:"喜强光喜日晒，越晒越香越开花", water:"喜湿润，生长期勤浇水，避免干旱", fertilizer:"花期前磷钾肥勤施，花后修剪补肥", tip:"‘晒不死的茉莉，阴不死的栀子’，光照是开花关键", flowerLanguage:"茉莉花语：‘忠贞爱情、质朴纯洁、迷人芬芳、默默守护’。花香清雅脱俗，象征纯粹专一的情感，寓意温柔长久、岁岁芬芳。", coldKnowledge:"茉莉是世界著名香花，花香可安神舒缓；‘花开满园香’，花期集中在夏秋；修剪越勤、分枝越多、开花越密；可制作花茶香包精油。"},
+    {name:"满天星", category:"草本", light:"喜充足光照，全日照养护最佳", water:"喜干燥透气，忌积水", fertilizer:"生长期通用肥，花期磷钾肥", tip:"分枝密集花量巨大，适合盆栽插花", flowerLanguage:"满天星花语：‘甘愿做配角的爱、默默守护、纯粹温柔、无尽思念’。花朵细小繁多、簇拥成团，象征默默无闻、温柔长久的陪伴。", coldKnowledge:"满天星常作插花配花，但本身极具美感；花期超长，干花可永久保存；寓意低调温柔、不争不抢。"},
+    {name:"郁金香", category:"草本", light:"喜充足光照，冷凉环境生长最佳", water:"见干见湿，忌积水烂球", fertilizer:"生长期薄肥，花期停肥", tip:"耐寒怕热，夏季休眠", flowerLanguage:"郁金香花语：‘博爱、体贴、高雅、富贵、真诚祝福’。花型端庄优雅，象征高贵温柔、真挚美好，寓意生活雅致顺遂。", coldKnowledge:"郁金香是荷兰国花，品种繁多色彩丰富；属球根花卉，夏季高温休眠；耐寒性极强，冬季可露天越冬；象征胜利与美好。"},
+    {name:"洋桔梗", category:"草本", light:"明亮散射光，怕暴晒，喜温暖柔和环境", water:"土干再浇，保持透气，忌积水", fertilizer:"生长期薄肥勤施", tip:"花型高级花期长，观赏性极强", flowerLanguage:"洋桔梗花语：‘真诚不变的爱、永世不忘、温柔坚定’。花型优雅高级，象征坚定不移的心意与长久的美好。", coldKnowledge:"洋桔梗常被误认为玫瑰，花期比玫瑰更长；花色清新高级，是网红切花；养护简单，室内盆栽可反复开花。"},
+    {name:"三角梅", category:"木本", light:"喜全日照，越晒开花越爆，缺光不开花", water:"花期控水，偏干养护促花苞", fertilizer:"催花专用磷钾肥勤施", tip:"喜热喜光，耐旱不耐涝，修剪促分枝", flowerLanguage:"三角梅花语：‘热情、坚韧不拔、顽强奋进’。开花热烈繁盛、花期超长，象征积极向上、永不言弃的生活态度。", coldKnowledge:"三角梅又叫叶子花，花期可长达全年；控水、多晒、勤修剪是爆花三要素；南方露天全年开花，北方室内春夏秋开花。"},
+    {name:"仙人球", category:"多肉", light:"喜强光全日照，极度喜光", water:"全年极少浇水，宁干勿湿", fertilizer:"春夏极少量缓释肥", tip:"懒人必备，几乎养不死", flowerLanguage:"仙人球花语：‘坚强、刚毅、外刚内柔、守护幸福’。外表坚硬带刺，内心柔软坚韧，象征坚强独立、默默守护。", coldKnowledge:"仙人球夜间释放氧气适合卧室；抗辐射、耐干旱、耐贫瘠；开花寓意好运将至；生命力极其顽强。"},
+    {name:"文竹", category:"草本", light:"喜散光怕暴晒，阴凉湿润环境最佳", water:"保持微湿，经常喷雾增湿", fertilizer:"稀薄观叶肥，少施勤施", tip:"枝叶轻盈雅致，喜湿润怕干燥", flowerLanguage:"文竹花语：‘文雅、从容、永恒、真挚友谊’。姿态清雅飘逸，象征君子之风、淡然从容。", coldKnowledge:"文竹自古是文人雅花，寓意书香门第；枝叶轻盈极具国风美感；干燥、暴晒、积水是黄叶主因。"},
+    {name:"太阳花", category:"草本", light:"全日照暴晒养护，越晒开花越多", water:"耐旱耐晒，土干浇水", fertilizer:"通用薄肥即可", tip:"生命力超级顽强，俗称‘死不了’", flowerLanguage:"太阳花花语：‘勇敢、热烈、积极向上、永远向阳’。永远朝向阳光绽放，象征乐观开朗、不惧风雨。", coldKnowledge:"太阳花生命力极强，掐枝即活、落地生根；花期从春末开到深秋；光照越足花越密集，阴天闭合晴天开放。"},
+    {name:"兰花", category:"草本", light:"柔和散射光，严禁暴晒", water:"润而不涝，透气为主", fertilizer:"兰花专用肥薄施", tip:"喜通风喜湿润，怕闷热积水", flowerLanguage:"兰花花语：‘高雅、纯洁、淡泊、君子气度’。花中四君子之一，象征清雅脱俗、品德高尚。", coldKnowledge:"兰花是传统名花，象征高洁品格；根系肉质怕积水，必须用透气植料；喜阴凉通风，忌高温闷热。"},
+    {name:"铜钱草", category:"草本", light:"喜光耐阴，光照足叶片圆润翠绿", water:"可水培可土培，喜水湿不怕水多", fertilizer:"通用液肥半月一次", tip:"长势迅猛，爆盆速度极快", flowerLanguage:"铜钱草花语：‘财源滚滚、团圆美满、平安富贵’。叶片圆润似铜钱，象征招财纳福、圆满顺遂。", coldKnowledge:"铜钱草水陆两栖极好养活；光照充足、水分充足即可快速爆盆；寓意招财聚财，是热门吉祥绿植。"},
+    {name:"绣球", category:"木本", light:"明亮散射光，避开正午烈日，上午柔和阳光最佳", water:"喜湿润，保持微湿不积水，高温早晚叶面喷水", fertilizer:"春生长期复合肥，孕蕾期磷酸二氢钾；调蓝用硫酸铝", tip:"花色随土壤酸碱度改变，大花绣球需低温春化才能大量开花", flowerLanguage:"绣球花语是‘团圆美满、希望、忠贞、永恒’。数十朵小花簇拥成圆润饱满的花球，代表相聚团圆，象征家人朋友长久相伴；也寓意绝境之中依然存有希望。", coldKnowledge:"绣球颜色由土壤pH值和铝离子共同决定；原产我国四川一带，后传入欧洲改良；花瓣上的大花实为不孕花，真正小花藏在花球内部；全株含微量毒素不可食用。"},
+    {name:"风信子", category:"草本", light:"充足柔和光照，缺光花茎徒长倒伏，光太强缩短花期", water:"水培水面距球根1cm不浸泡种球；土培见干见湿忌积水", fertilizer:"出芽后薄施磷钾肥，现蕾后补肥，开花后停肥", tip:"典型秋植球根，低温春化才开花，花后养球夏季休眠", flowerLanguage:"风信子花语是‘点燃生命之火，纵享丰富人生’，代表永远的怀念、爱意与幸福。开花香气浓烈馥郁，象征重生与新生，寓意告别过往遗憾，开启崭新美好生活。", coldKnowledge:"风信子原产地中海沿岸，是著名香花球根；花香浓度高，密闭卧室勿大量摆放；种球汁液有刺激性，修剪建议戴手套；早春开花，是欧美经典春季花卉。"},
+    {name:"白掌（一帆风顺）", category:"草本", light:"明亮散射光，耐阴性优秀，不能强光直射，过暗不开花", water:"保持微润，缺水叶片立刻下垂，积水易烂根，空气干燥多喷雾", fertilizer:"生长期薄施磷钾肥促花，氮肥过多只长叶不开花", tip:"叶片下垂优先检查缺水，对氨气甲醛净化能力强", flowerLanguage:"白掌花语是‘一帆风顺、平安顺遂、纯洁安宁’。洁白佛焰花苞如同扬起的白帆，寓意事业生活一路顺畅，无灾无难；象征内心平和纯净，万事称心如意。", coldKnowledge:"白掌又叫白鹤芋，白色部分不是花瓣而是特化的苞片，真正小花是中间肉穗；缺水时叶片会自动下垂，补水后短时间恢复；汁液有轻微刺激性避免误食。"},
+    {name:"红掌", category:"草本", light:"明亮散射光，忌烈日暴晒，光照合适花色红艳", water:"保持微润，土表发干再补水，忌积水，喜高空气湿度", fertilizer:"花期持续施磷钾肥，薄肥勤施，氮肥过多只长叶", tip:"花期极长，单朵花可维持2-3个月，常年可开花", flowerLanguage:"红掌花语：大展宏图、热情热血、鸿运当头。火红的苞片象征热烈的祝福，寓意事业腾飞、前程似锦，也代表热烈真挚的感情，适合开业乔迁摆放。", coldKnowledge:"红掌又名花烛，红色部分同样是苞片，中间肉穗花序才是小花；原产热带雨林喜温暖高湿怕冷；花期持久是全球畅销切花；汁液含草酸钙勿入口。"},
+    {name:"小木槿", category:"木本", light:"全日照，光照越足开花量越大，缺光徒长花苞少", water:"生长快耗水大，土表干了就浇，夏季早晚补水", fertilizer:"薄肥勤施，生长期通用肥，孕蕾期磷酸二氢钾", tip:"修剪关键，花后剪残花打顶促分枝；生长飞快易爆盆", flowerLanguage:"小木槿花语：温柔坚韧、珍惜当下、生生不息。花朵轻盈秀气持续开放，代表平凡日子里源源不断的美好，寓意温柔而强大，珍惜眼前每一段时光。", coldKnowledge:"小木槿是南非葵并非木槿，只是外形相似；生长速度在开花灌木里属第一梯队，温度合适几乎全年开花；毛细根多不耐闷根，土壤透气是养护重点。"},
+    {name:"蓝雪花", category:"木本", light:"全日照最佳，半阴也能生长但开花变少", water:"见干见湿，旺盛期需水量大，夏季高温补水", fertilizer:"春夏生长期通用复合肥搭配磷钾肥交替施用", tip:"耐修剪，耐热性强，夏天持续开花，怕冷低温会冻伤", flowerLanguage:"蓝雪花花语：冷淡、忧郁、勇敢、率真。清新淡雅的淡蓝色花朵自带清冷气质，寓意即便身处困境，依旧保有勇敢乐观的本心，安静从容不随波逐流。", coldKnowledge:"蓝雪花原产南非，耐热能力强，是夏季花园主力；蓝色在花卉里属少见的冷色调；枝条柔软可牵引做成花墙花柱；低温低于5℃易冻伤，北方冬季室内养护。"},
+    {name:"蟹爪兰", category:"多肉", light:"明亮散射光，短日照花卉，秋冬孕育花苞，强光灼伤叶片", water:"肉质茎储水，干透浇透，孕蕾期勿频繁搬动防掉苞", fertilizer:"秋天增施磷钾肥促花苞，开花后、夏季高温停肥", tip:"短日照植物，秋天黑夜足够才长花苞；嫁接长势更强", flowerLanguage:"蟹爪兰花语：鸿运当头、运转乾坤、锦上添花。花朵垂吊盛开，花期临近圣诞新年，寓意好运降临，喜事接踵而至，生活锦上添花。", coldKnowledge:"蟹爪兰是仙人掌科植物，原生环境是热带雨林附生植物，不是沙漠仙人掌；茎节像螃蟹爪子得名；孕蕾期挪动花盆极易大量落蕾；花期冬春是热门年宵花卉。"},
+    {name:"酢浆草", category:"草本", light:"全日照，光照充足开花爆盆，阴天夜晚花朵闭合", water:"见干见湿，球根怕积水，雨季控水", fertilizer:"生长期薄肥，孕蕾期磷钾肥，休眠停水停肥", tip:"品种繁多，休眠时地上枯萎地下球根留存来年发芽", flowerLanguage:"酢浆草花语：璀璨的心、爱国、欢乐。小巧精致的小花向阳开放，象征简单纯粹的快乐，寓意拥抱平凡生活里细碎的美好，永远保持乐观欢喜。", coldKnowledge:"酢浆草分布全球，园艺品种花色丰富；属球根类小草花，繁殖能力极强；花朵感夜性傍晚闭合，太阳升起重新绽放；叶片含草酸不可大量食用。"},
+    {name:"天竺葵", category:"草本", light:"充足散射光，春秋多晒，夏季高温遮阴", water:"见干见湿，忌积水闷根，夏季高温休眠减少浇水", fertilizer:"春秋生长季薄肥，孕蕾磷钾肥，夏冬停肥", tip:"有特殊气味可驱赶部分蚊虫，夏季高温休眠注意通风降温", flowerLanguage:"天竺葵花语：幸福就在身边、思念、怀念。花朵成团盛开色彩丰富，代表微小而触手可及的幸福，寓意珍惜身边人，藏着绵长温柔的思念。", coldKnowledge:"天竺葵原产南非，是阳台经典开花植物；叶片有独特挥发性香气可驱赶蚜虫小飞虫；很多香氛产品使用天竺葵精油；夏季怕闷热高温高湿易黑腐需通风。"},
+    {name:"倒挂金钟", category:"木本", light:"明亮散射光，怕夏季烈日暴晒，凉爽环境生长最佳", water:"保持微润不积水，高温休眠期控水，缺水易落叶", fertilizer:"春秋薄肥勤施，孕蕾磷钾肥，夏季高温完全停肥", tip:"喜凉怕热，夏天高温极易休眠死亡，俗称‘夏必死’", flowerLanguage:"倒挂金钟花语：相信爱情、热烈的心、永远相信美好。花朵向下垂吊像一盏盏精致小灯笼，寓意怀揣热忱，永远相信爱与希望。", coldKnowledge:"倒挂金钟又名灯笼花，花朵造型独特像悬挂的花灯；原生凉爽山地极怕高温闷热，28℃以上生长变差32℃极易枯萎；修剪打顶可促分枝花量翻倍。"},
+    {name:"玫瑰", category:"木本", light:"全日照，每日6小时直射阳光，缺光徒长开花少", water:"见干见湿，花期保持微湿，严禁积水，雨后排水通风", fertilizer:"生长期复合肥，孕蕾期磷酸二氢钾，花后修剪补肥", tip:"与月季易混淆，玫瑰叶片褶皱刺密；高湿不通风易黑斑白粉病", flowerLanguage:"玫瑰花语：爱情、浪漫、美好、真挚告白。不同花色寓意不同，红玫瑰代表热恋，白玫瑰代表纯洁，粉玫瑰代表心动。玫瑰象征热烈真挚的爱意，是传递心意的经典花卉。", coldKnowledge:"真正的玫瑰大多一年只开一次花，市面上情人节售卖的切花玫瑰实际是现代月季；玫瑰叶片表面褶皱背面带绒毛；花瓣可提取玫瑰精油用于香水护肤品。"},
+    {name:"牡丹", category:"木本", light:"全日照，充足阳光，夏季正午适当遮阴", water:"耐旱怕涝，干透浇透，雨季一定排水，积水极易烂根", fertilizer:"秋冬基肥，春季孕蕾磷钾肥，花后补肥，夏季停肥", tip:"喜凉需低温春化才能开花；‘牡丹长一尺退八寸’，秋天适合栽种", flowerLanguage:"牡丹花语：富贵圆满、雍容华贵、吉祥繁荣。牡丹被誉为花中之王，象征高贵、繁荣与吉祥，寓意家业兴旺、富贵安康。", coldKnowledge:"牡丹是中国十大名花之首，自古被尊为花王；适合秋季移栽，春天移栽不容易开花；品种繁多花色丰富；牡丹根皮就是中药丹皮。"},
+    {name:"向日葵", category:"草本", light:"全日照，必须充足直射阳光，缺光植株瘦弱花盘小", water:"苗期控水蹲苗，花期保持土壤湿润，忌积水烂根", fertilizer:"生长期氮肥壮苗，孕蕾期增施磷钾肥促花盘膨大", tip:"花盘会跟随太阳转动，成熟后固定朝东；长势快需足够空间", flowerLanguage:"向日葵花语：沉默的爱、忠诚、阳光、积极向上。永远向着太阳，象征乐观温暖不惧困难，寓意满怀希望，永远向阳而生。", coldKnowledge:"向日葵追随太阳的现象只出现在花蕾阶段，花朵完全开放后不再转动；种子就是葵花籽；植株体内生长素造成向光弯曲；高大品种可长到两米以上。"}
+];
+
+// ===================== 病虫害数据库（含用药方案） =====================
+const diseaseData = [
+    {plantName:"绿萝", symptom:"叶尖干枯焦边、叶片发黄卷曲、整体萎靡", reason:"强光暴晒、空气干燥、长期缺水", solve:"移至散光阴凉处，每日早晚叶面喷雾增湿；药物：多菌灵可湿性粉剂1000倍液整株喷洒，7天一次，连用2次。"},
+    {plantName:"绿萝", symptom:"叶片出现褐色斑点、扩散腐烂", reason:"高湿不通风、真菌感染", solve:"摘除病叶加强通风；药物：甲基托布津800倍液喷洒，间隔7天，连续2-3次。"},
+    {plantName:"玉露", symptom:"叶片透明化、发软水化、根部发黑腐烂", reason:"积水闷根、高温高湿、不通风", solve:"脱盆修剪烂根，更换颗粒透气土；药物：百菌清1000倍液浸泡根系5分钟晾干重种。"},
+    {plantName:"玉露", symptom:"叶片干瘪灰暗、无通透感", reason:"光照过强、缺水干旱", solve:"移至散光处少量补水，喷施多肉营养液恢复状态。"},
+    {plantName:"月季", symptom:"叶片黑斑、脱落、枝条枯萎", reason:"黑斑病、高湿闷热", solve:"摘除全部病叶修剪弱枝；药物：苯醚甲环唑1500倍液整株喷洒，7天一次连用3次。"},
+    {plantName:"月季", symptom:"叶片卷曲、背面细小绿虫、长势停滞", reason:"蚜虫虫害爆发", solve:"清水冲洗虫体；药物：吡虫啉2000倍液喷洒，一次即可灭虫。"},
+    {plantName:"月季", symptom:"叶片发白点状、干枯脱落", reason:"红蜘蛛虫害", solve:"药物：阿维菌素2000倍液整株喷施，间隔5天连用2次。"},
+    {plantName:"栀子花", symptom:"新叶发黄发白、叶脉绿色、长势弱", reason:"土壤盐碱化、缺铁缺酸", solve:"浇灌硫酸亚铁1000倍液每月一次；配合酸性营养液养护。"},
+    {plantName:"栀子花", symptom:"花苞发黑脱落、不开花", reason:"干旱、闷热、通风差", solve:"补水增湿加强通风，喷施磷酸二氢钾保花。"},
+    {plantName:"发财树", symptom:"叶片发黄脱落、枝干发软", reason:"积水烂根、低温冻伤", solve:"脱盆剪烂根晾干换土；药物：多菌灵浸泡根系消毒。"},
+    {plantName:"长寿花", symptom:"叶片软烂发黑、茎干腐烂", reason:"黑腐病、积水闷热", solve:"切除腐烂部位伤口晾干；药物：代森锰锌800倍液喷洒消毒。"},
+    {plantName:"吊兰", symptom:"叶尖干枯、黄叶增多", reason:"空气干燥、肥力不足", solve:"修剪枯叶喷雾增湿，喷施通用叶面肥。"},
+    {plantName:"虎皮兰", symptom:"叶片软烂、出现水渍斑点", reason:"积水真菌感染", solve:"切除病部涂抹多菌灵粉末，控水通风。"},
+    {plantName:"茉莉", symptom:"花苞掉落、叶片发黄", reason:"缺光、缺水、肥力不足", solve:"增加光照补水，喷施磷钾肥，定期通风。"},
+    {plantName:"三角梅", symptom:"掉叶掉花苞、不开花", reason:"光照不足、积水烂根", solve:"全日照养护严格控水，喷施催花肥。"},
+    {plantName:"绣球", symptom:"叶片出现褐色大斑，逐渐扩大枯黄", reason:"叶斑病，高湿多雨通风差", solve:"摘除病叶；药物：代森锰锌800倍喷洒，7天一次连用2次。"},
+    {plantName:"绣球", symptom:"花苞发黑脱落，新叶发黄", reason:"积水闷根/土壤碱化", solve:"控水通风；土壤碱化浇灌硫酸亚铁1000倍液。"},
+    {plantName:"风信子", symptom:"种球腐烂、外皮发黑，叶片发黄倒伏", reason:"软腐病，水分浸泡种球", solve:"切除腐烂部位，多菌灵1000倍浸泡消毒，晾干重新栽种。"},
+    {plantName:"白掌（一帆风顺）", symptom:"叶尖焦黄，叶片长褐色斑点", reason:"炭疽病，空气干燥+闷湿", solve:"剪掉病叶；药物：咪鲜胺1500倍整株喷雾，7天一次。"},
+    {plantName:"红掌", symptom:"叶片出现水渍状褐斑，花苞腐烂", reason:"疫霉根腐病，盆土长期潮湿", solve:"停止浇水加强通风；恶霉灵1000倍灌根。"},
+    {plantName:"小木槿", symptom:"嫩梢卷曲，叶片背面细小蚜虫", reason:"蚜虫爆发", solve:"吡虫啉2000倍喷施，5天一次。"},
+    {plantName:"蓝雪花", symptom:"叶片出现白色小点，逐渐发黄干枯", reason:"红蜘蛛，干燥高温诱发", solve:"阿维菌素2000倍喷洒，正反面叶片都喷到。"},
+    {plantName:"蟹爪兰", symptom:"茎节发软发黑腐烂，一碰就掉", reason:"根腐病，积水低温", solve:"切掉腐烂茎节，伤口涂抹多菌灵粉末，控水。"},
+    {plantName:"酢浆草", symptom:"叶片布满灰白色霉层，枯萎", reason:"白粉病，通风差湿度高", solve:"醚菌酯1500倍喷雾，间隔7天。"},
+    {plantName:"天竺葵", symptom:"叶片水渍黑斑，快速腐烂", reason:"灰霉病，低温高湿", solve:"摘除病叶；腐霉利1000倍喷洒，减少环境湿度。"},
+    {plantName:"倒挂金钟", symptom:"叶片发黄脱落，根系发黑腐烂", reason:"高温闷根，根腐病", solve:"移至阴凉通风处，恶霉灵灌根，严格控水。"},
+    {plantName:"玫瑰", symptom:"叶片白色粉状物，卷曲发黄", reason:"白粉病，高湿通风差", solve:"摘除病叶；醚菌酯1500倍喷雾，7天一次连用2次。"},
+    {plantName:"玫瑰", symptom:"叶片黑斑，落叶，枝条衰弱", reason:"黑斑病，多雨高湿", solve:"修剪病枝病叶；苯醚甲环唑1500倍喷洒。"},
+    {plantName:"牡丹", symptom:"叶片褐色轮纹斑，逐渐焦枯", reason:"叶斑病，多雨闷热", solve:"摘除病叶；代森锰锌800倍喷施，加强通风。"},
+    {plantName:"牡丹", symptom:"新芽发黑腐烂，根茎软腐", reason:"根腐病，积水排水差", solve:"控水；恶霉灵1000倍灌根，严重脱盆修根消毒。"},
+    {plantName:"向日葵", symptom:"叶片黄斑，慢慢枯萎", reason:"锈病，高湿环境", solve:"摘除病叶；三唑酮1200倍喷雾，间隔7天。"},
+    {plantName:"向日葵", symptom:"幼苗倒伏，茎基部发黑软烂", reason:"立枯病，盆土潮湿", solve:"减少浇水；恶霉灵灌根，增加通风。"}
+];
+
+//每日一花素材池（复用花卉库）
+const dailyFlowerPool = flowerGuideData;
+
+//分类列表
+const categoryList = ["全部","草本","木本","多肉"];
+let currentCategory = "全部";
+
+// 根据花卉名称查询对应病害
+function getDiseaseByPlantName(plantName){
+    return diseaseData.filter(item=>item.plantName === plantName);
+}
+// ===================== 本地存储工具 =====================
+function getStorage(key) {
+    const data = localStorage.getItem(key);
+    try { return data ? JSON.parse(data) : []; } catch (e) { return []; }
+}
+function setStorage(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
+}
+
+// ===================== 日期工具（禁止未来日期） =====================
+function getNowDateStr() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+}
+
+// ===================== 页面切换 =====================
+function openSubPage(pageId) {
+    document.getElementById("homePage").style.display = "none";
+    document.querySelectorAll('.sub-page').forEach(el => el.classList.remove('active'));
+    document.getElementById(pageId).classList.add("active");
+    if (pageId === "guide") renderGuide();
+    if (pageId === "myplant") renderMyPlant();
+    if (pageId === "disease") renderDisease();
+}
+function backHome() {
+    document.getElementById("homePage").style.display = "grid";
+    document.querySelectorAll('.sub-page').forEach(el => el.classList.remove('active'));
+}
+
+// ===================== 弹窗控制 =====================
+function openModal() { document.getElementById("plantModal").classList.add("show"); }
+function closeModal() { document.getElementById("plantModal").classList.remove("show"); }
+function openSearchModal() { document.getElementById("searchModal").classList.add("show"); }
+function closeSearchModal() {
+    document.getElementById("searchModal").classList.remove("show");
+    document.getElementById("searchInput").value = "";
+}
+
+// ===================== 模块1：每日一花渲染 =====================
+function renderDailyFlower() {
+    const random = dailyFlowerPool[Math.floor(Math.random() * dailyFlowerPool.length)];
+    document.getElementById("dailyFlowerBox").innerHTML = `
+        <p style="font-size:17px;font-weight:bold;color:#2f5d3a;">${random.name}</p>
+        <div class="knowledge-block"><strong>💐 花语</strong>：${random.flowerLanguage}</div>
+        <div class="knowledge-block"><strong>💡 花卉冷知识</strong>：${random.coldKnowledge}</div>
+        <p style="font-size:13px;color:#556b59;"><strong>🌱 基础养护要点</strong>：${random.tip}</p>
+    `;
+}
+
+// ===================== 模块2：全局搜索（修复版：首页即可用，弹出结果浮层） =====================
+function getSearchResult(keyword) {
+    const kw = keyword.toLowerCase().trim();
+    if (!kw) return { guide: [], disease: [] };
+    const guide = flowerGuideData.filter(i =>
+        i.name.toLowerCase().includes(kw) ||
+        i.tip.toLowerCase().includes(kw) ||
+        i.flowerLanguage.toLowerCase().includes(kw) ||
+        i.category.toLowerCase().includes(kw)
+    );
+    const disease = diseaseData.filter(i =>
+        i.plantName.toLowerCase().includes(kw) ||
+        i.symptom.toLowerCase().includes(kw) ||
+        i.solve.toLowerCase().includes(kw)
+    );
+    return { guide: guide, disease: disease };
+}
+
+//渲染搜索结果浮层
+function renderSearchResult(keyword) {
+    const res = getSearchResult(keyword);
+    const listBox = document.getElementById("searchResultList");
+    //病害匹配涉及的花卉（去重，未在攻略匹配中出现过的）
+    const diseasePlants = [];
+    res.disease.forEach(d => {
+        if (!diseasePlants.includes(d.plantName)) diseasePlants.push(d.plantName);
+    });
+    const extraPlants = diseasePlants.filter(p => !res.guide.some(g => g.name === p));
+
+    document.getElementById("searchModalTitle").textContent =
+        "搜索结果（花卉" + res.guide.length + "条 / 病害" + res.disease.length + "条）";
+
+    let html = "";
+    if (res.guide.length === 0 && extraPlants.length === 0) {
+        html = `<div class="empty-tip">没有找到与「${keyword}」相关的内容<br>试试输入：月季、绿萝、黄叶、黑斑...</div>`;
+    }
+    res.guide.forEach(item => {
+        html += `
+        <div class="search-result-item" onclick="openPlantDetail('${item.name}')">
+            <h4>${item.name} <span class="category-tag">${item.category}</span><span class="match-type">攻略匹配</span></h4>
+            <p>${item.tip}</p>
+        </div>`;
+    });
+    extraPlants.forEach(p => {
+        const item = flowerGuideData.find(f => f.name === p);
+        if (item) {
+            html += `
+            <div class="search-result-item" onclick="openPlantDetail('${item.name}')">
+                <h4>${item.name} <span class="category-tag">${item.category}</span><span class="match-type">病害匹配</span></h4>
+                <p>${item.tip}</p>
+            </div>`;
+        }
+    });
+    listBox.innerHTML = html;
+}
+
+//搜索框监听：输入即弹出搜索结果浮层（初始首页直接可用）
+document.getElementById("searchInput").addEventListener("input", function () {
+    const kw = this.value.trim();
+    if (kw === "") {
+        document.getElementById("searchModal").classList.remove("show");
+        return;
+    }
+    renderSearchResult(kw);
+    openSearchModal();
+});
+
+// ===================== 模块3：植物攻略库 =====================
+function renderCategoryFilter() {
+    const filterWrap = document.getElementById("categoryFilter");
+    let html = "";
+    categoryList.forEach(cat => {
+        const active = cat === currentCategory ? "active" : "";
+        html += `<button class="${active}" onclick="changeCategory('${cat}')">${cat}</button>`;
+    });
+    filterWrap.innerHTML = html;
+}
+function changeCategory(catName) {
+    currentCategory = catName;
+    renderCategoryFilter();
+    renderGuide();
+}
+function renderGuide(searchList = flowerGuideData) {
+    let list = searchList;
+    if (currentCategory !== "全部") {
+        list = list.filter(item => item.category === currentCategory);
+    }
+    const wrap = document.getElementById("guideList");
+    if (list.length === 0) {
+        wrap.innerHTML = `<div class="empty-tip">没有找到匹配的花卉攻略</div>`;
+        return;
+    }
+    let html = "";
+    list.forEach(item => {
+        html += `
+        <div class="card" onclick="openPlantDetail('${item.name}')">
+            <h4>${item.name} <span class="category-tag">${item.category}</span></h4>
+            <p>☀光照：${item.light.substring(0, 38)}...</p>
+            <p>💧浇水：${item.water.substring(0, 38)}...</p>
+            <p>📌贴士：${item.tip}</p>
+        </div>`;
+    });
+    wrap.innerHTML = html;
+}
+
+// ===================== 花卉详情弹窗 =====================
+function openPlantDetail(plantName) {
+    const plant = flowerGuideData.find(p => p.name === plantName);
+    if (!plant) return;
+    const relatedDisease = getDiseaseByPlantName(plantName);
+    let diseaseHtml = "";
+    if (relatedDisease.length > 0) {
+        relatedDisease.forEach(d => {
+            diseaseHtml += `
+            <div class="card" style="cursor:default;">
+                <span class="sick-tag">病害诊疗（含用药）</span>
+                <p><b>症状：</b>${d.symptom}</p>
+                <p><b>诱因：</b>${d.reason}</p>
+                <p><b>✅解决方案+用药：</b>${d.solve}</p>
+            </div>`;
+        });
+    } else {
+        diseaseHtml = `<p style="color:#7a9480;">暂无该花卉相关病害记录</p>`;
+    }
+    document.getElementById("modalContent").innerHTML = `
+        <h3 style="color:#2f5d3a;margin-bottom:12px;">${plant.name} <span class="category-tag">${plant.category}</span></h3>
+        <div class="knowledge-block"><strong>💐 完整花语</strong>：${plant.flowerLanguage}</div>
+        <div class="knowledge-block"><strong>💡 花卉冷知识</strong>：${plant.coldKnowledge}</div>
+        <div class="card" style="cursor:default;">
+            <p><b>☀光照要求</b>：${plant.light}</p>
+            <p><b>💧浇水方法</b>：${plant.water}</p>
+            <p><b>🧪施肥方案</b>：${plant.fertilizer}</p>
+            <p><b>📌养护核心贴士</b>：${plant.tip}</p>
+        </div>
+        <h4 style="color:#2f5d3a;margin:14px 0 10px;">🌡️ 该花卉专属病虫害诊疗（带具体药品）</h4>
+        ${diseaseHtml}
+    `;
+    openModal();
+}
+
+// ===================== 模块4：种植打卡（修复未来日期BUG） =====================
+function addMyPlant() {
+    const name = document.getElementById("addPlantName").value.trim();
+    const date = document.getElementById("addPlantDate").value;
+    const nowDate = getNowDateStr();
+    if (!name || !date) {
+        alert("请完整填写花卉名称和种下日期！");
+        return;
+    }
+    if (date > nowDate) {
+        alert("❌禁止选择未来日期！请选择今日或过往日期");
+        return;
+    }
+    const myPlants = getStorage("myPlants");
+    myPlants.push({ name: name, startDate: date, id: Date.now() });
+    setStorage("myPlants", myPlants);
+    document.getElementById("addPlantName").value = "";
+    document.getElementById("addPlantDate").value = "";
+    renderMyPlant();
+    alert("✅种植记录添加成功！种植天数自动更新");
+}
+function getPlantDays(startDateStr) {
+    const start = new Date(startDateStr);
+    const now = new Date();
+    const diffTime = now.getTime() - start.getTime();
+    if (diffTime <= 0) return 0;
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
+function renderMyPlant() {
+    const myPlants = getStorage("myPlants");
+    const wrap = document.getElementById("myPlantList");
+    if (myPlants.length === 0) {
+        wrap.innerHTML = `<div class="empty-tip">暂无种植记录，添加你的第一盆花卉吧</div>`;
+        return;
+    }
+    let html = "";
+    myPlants.forEach(item => {
+        const day = getPlantDays(item.startDate);
+        html += `
+        <div class="card" style="cursor:default;">
+            <h4>${item.name}</h4>
+            <span class="plant-day-tag">已种植 ${day} 天</span>
+            <p>📅种下日期：${item.startDate}</p>
+            <button class="btn btn-danger" style="margin-top:8px;" onclick="delPlant(${item.id})">删除这条记录</button>
+        </div>`;
+    });
+    wrap.innerHTML = html;
+}
+function delPlant(id) {
+    let myPlants = getStorage("myPlants");
+    myPlants = myPlants.filter(p => p.id !== id);
+    setStorage("myPlants", myPlants);
+    renderMyPlant();
+}
+
+// ===================== 模块5：病虫害库渲染 =====================
+function renderDisease(list = diseaseData) {
+    const wrap = document.getElementById("diseaseList");
+    if (list.length === 0) {
+        wrap.innerHTML = `<div class="empty-tip">没有找到相关病虫害记录</div>`;
+        return;
+    }
+    let html = "";
+    list.forEach(item => {
+        html += `
+        <div class="card" style="cursor:default;">
+            <h4>🪴 ${item.plantName}</h4>
+            <span class="sick-tag">病害诊疗</span>
+            <p><b>症状：</b>${item.symptom}</p>
+            <p><b>诱因：</b>${item.reason}</p>
+            <p><b>✅解决方案+用药：</b>${item.solve}</p>
+        </div>`;
+    });
+    wrap.innerHTML = html;
+}
+
+// ===================== 页面初始化 =====================
+window.onload = function () {
+    renderDailyFlower();
+    renderCategoryFilter();
+    renderGuide();
+    renderDisease();
+    renderMyPlant();
+    document.getElementById("addPlantDate").max = getNowDateStr();
+};
+</script>
+</body>
+</html>
